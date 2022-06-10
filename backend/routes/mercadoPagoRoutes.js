@@ -1,4 +1,4 @@
-
+/* 
 import express from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import Order from '../models/orderModel.js';
@@ -82,4 +82,4 @@ mercadoPagoRouter.get('/mercadoPago/pagos', async (req, res, next) => {
     }
   })
 
-export default mercadoPagoRouter; 
+export default mercadoPagoRouter;  */
