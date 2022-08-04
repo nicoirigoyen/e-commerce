@@ -6,6 +6,7 @@ import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { Store } from '../Store';
 import { getError } from '../utils';
+import Button from 'react-bootstrap/esm/Button';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -84,7 +85,7 @@ export default function OrderHistoryScreen() {
                     : 'No'}
                 </td>
                 <td>
-                  <button
+                  <Button
                     type="button"
                     variant="light"
                     onClick={() => {
@@ -92,7 +93,7 @@ export default function OrderHistoryScreen() {
                     }}
                   >
                     Details
-                  </button>
+                  </Button>
                 </td>
               </tr>
             ))}

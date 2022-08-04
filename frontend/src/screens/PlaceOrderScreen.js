@@ -28,6 +28,7 @@ const reducer = (state, action) => {
 
 export default function PlaceOrderScreen() {
   const navigate = useNavigate();
+
   const [{ loading }, dispatch] = useReducer(reducer, {
     loading: false,
   });
@@ -73,7 +74,6 @@ export default function PlaceOrderScreen() {
       toast.error(getError(err));
     }
   };
-
 
   useEffect(() => {
     if (!cart.paymentMethod) {

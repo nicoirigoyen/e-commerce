@@ -36,7 +36,6 @@ export default function CartScreen() {
     navigate('/signin?redirect=/shipping');
   };
 
-
   return (
     <div>
       <Helmet>
@@ -63,7 +62,7 @@ export default function CartScreen() {
                       <Link to={`/product/${item.slug}`}>{item.name}</Link>
                     </Col>
                     <Col md={3}>
-                    <Button
+                      <Button
                         onClick={() =>
                           updateCartHandler(item, item.quantity - 1)
                         }
@@ -75,7 +74,9 @@ export default function CartScreen() {
                       <span>{item.quantity}</span>{' '}
                       <Button
                         variant="light"
-                        onClick={() =>updateCartHandler(item, item.quantity + 1)}
+                        onClick={() =>
+                          updateCartHandler(item, item.quantity + 1)
+                        }
                         disabled={item.quantity === item.countInStock}
                       >
                         <i className="fas fa-plus-circle"></i>
@@ -83,7 +84,10 @@ export default function CartScreen() {
                     </Col>
                     <Col md={3}>${item.price}</Col>
                     <Col md={2}>
-                    <Button onClick={() => removeItemHandler(item)} variant="light">
+                      <Button
+                        onClick={() => removeItemHandler(item)}
+                        variant="light"
+                      >
                         <i className="fas fa-trash"></i>
                       </Button>
                     </Col>

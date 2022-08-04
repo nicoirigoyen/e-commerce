@@ -37,16 +37,6 @@ export default function PaymentMethodScreen() {
         </Helmet>
         <h1 className="my-3">Payment Method</h1>
         <Form onSubmit={submitHandler}>
-        <div className="mb-3">
-            <Form.Check
-              type="radio"
-              id="MercadoPago"
-              label="MercadoPago"
-              value="MercadoPago"
-              checked={paymentMethodName === 'MercadoPago'}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-            />
-          </div>
           <div className="mb-3">
             <Form.Check
               type="radio"

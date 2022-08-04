@@ -20,7 +20,7 @@ export default function SearchBox() {
           type="text"
           name="q"
           id="q"
-          onChange={(e) => setQuery(e.target.value)}cd
+          onChange={(e) => setQuery(e.target.value)}
           placeholder="search products..."
           aria-label="Search Products"
           aria-describedby="button-search"

@@ -24,8 +24,7 @@ const reducer = (state, action) => {
       };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
-
-     case 'CREATE_REQUEST':
+    case 'CREATE_REQUEST':
       return { ...state, loadingCreate: true };
     case 'CREATE_SUCCESS':
       return {
@@ -34,8 +33,7 @@ const reducer = (state, action) => {
       };
     case 'CREATE_FAIL':
       return { ...state, loadingCreate: false };
-    
-      
+
     case 'DELETE_REQUEST':
       return { ...state, loadingDelete: true, successDelete: false };
     case 'DELETE_SUCCESS':
@@ -139,7 +137,7 @@ export default function ProductListScreen() {
 
   return (
     <div>
-        <Row>
+      <Row>
         <Col>
           <h1>Products</h1>
         </Col>
@@ -154,7 +152,6 @@ export default function ProductListScreen() {
 
       {loadingCreate && <LoadingBox></LoadingBox>}
       {loadingDelete && <LoadingBox></LoadingBox>}
-
 
       {loading ? (
         <LoadingBox></LoadingBox>
@@ -185,7 +182,8 @@ export default function ProductListScreen() {
                     <Button
                       type="button"
                       variant="light"
-                      onClick={() => navigate(`/admin/product/${product._id}`)}>
+                      onClick={() => navigate(`/admin/product/${product._id}`)}
+                    >
                       Edit
                     </Button>
                     &nbsp;

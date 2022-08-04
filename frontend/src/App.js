@@ -1,41 +1,43 @@
-import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
-import {toast, ToastContainer } from 'react-toastify';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import HomeScreen from "./screens/HomeScreen";
-import ProductScreen from "./screens/ProductScreen.js";
-import Navbar from "react-bootstrap/Navbar";
-import Badge from "react-bootstrap/Badge";
-import Nav from "react-bootstrap/Nav";
+import HomeScreen from './screens/HomeScreen';
+import ProductScreen from './screens/ProductScreen';
+import Navbar from 'react-bootstrap/Navbar';
+import Badge from 'react-bootstrap/Badge';
+import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import Container from "react-bootstrap/Container";
-import { LinkContainer } from "react-router-bootstrap";
+import Container from 'react-bootstrap/Container';
+import { LinkContainer } from 'react-router-bootstrap';
 import { useContext, useEffect, useState } from 'react';
-import { Store } from "./Store";
-import CartScreen from "./screens/CartScreen";
+import { Store } from './Store';
+import CartScreen from './screens/CartScreen';
 import SigninScreen from './screens/SigninScreen';
 import ShippingAddressScreen from './screens/ShippingAddressScreen';
 import SignupScreen from './screens/SignupScreen';
-import { getError } from './utils';
 import PaymentMethodScreen from './screens/PaymentMethodScreen';
 import PlaceOrderScreen from './screens/PlaceOrderScreen';
-import ProtectedRoute from './components/ProtectedRoute';
-import AdminRoute from './components/AdminRoute';
 import OrderScreen from './screens/OrderScreen';
-import UserScreen from './screens/UserScreen';
 import OrderHistoryScreen from './screens/OrderHistoryScreen';
-import DashboardScreen from './screens/DashboardScreen';
 import ProfileScreen from './screens/ProfileScreen';
-import Button from 'react-bootstrap/Button'
-import axios from "axios";
-import SearchBox from "./components/SearchBox";
-import SearchScreen from "./screens/SearchScreen";
+import Button from 'react-bootstrap/Button';
+import { getError } from './utils';
+import axios from 'axios';
+import SearchBox from './components/SearchBox';
+import SearchScreen from './screens/SearchScreen';
+import ProtectedRoute from './components/ProtectedRoute';
+import DashboardScreen from './screens/DashboardScreen';
+import AdminRoute from './components/AdminRoute';
 import ProductListScreen from './screens/ProductListScreen';
 import ProductEditScreen from './screens/ProductEditScreen';
 import OrderListScreen from './screens/OrderListScreen';
+import UserListScreen from './screens/UserListScreen';
+import UserEditScreen from './screens/UserEditScreen';
+import MapScreen from './screens/MapScreen';
 
-export default function App() {
+function App() {
   const { state, dispatch: ctxDispatch } = useContext(Store);
-  const { cart, userInfo } = state;
+  const { fullBox, cart, userInfo } = state;
 
   const signoutHandler = () => {
     ctxDispatch({ type: 'USER_SIGNOUT' });
@@ -44,10 +46,8 @@ export default function App() {
     localStorage.removeItem('paymentMethod');
     window.location.href = '/signin';
   };
-
   const [sidebarIsOpen, setSidebarIsOpen] = useState(false);
   const [categories, setCategories] = useState([]);
-
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -65,19 +65,25 @@ export default function App() {
       <div
         className={
           sidebarIsOpen
-            ? 'd-flex flex-column site-container active-cont'
-            : 'd-flex flex-column site-container'
+            ? fullBox
+              ? 'site-container active-cont d-flex flex-column full-box'
+              : 'site-container active-cont d-flex flex-column'
+            : fullBox
+            ? 'site-container d-flex flex-column full-box'
+            : 'site-container d-flex flex-column'
         }
       >
-      <ToastContainer position="bottom-center" limit={1} />
+        <ToastContainer position="bottom-center" limit={1} />
         <header>
-        <Navbar bg="dark" variant="dark" expand="lg">
-            <Container className="mt-3">
+          <Navbar bg="dark" variant="dark" expand="lg">
+            <Container>
               <Button
-              variant="dark"
-              onClick={()=>setSidebarIsOpen(!sidebarIsOpen)}>
-              <i className="fas fa-bars"></i>
+                variant="dark"
+                onClick={() => setSidebarIsOpen(!sidebarIsOpen)}
+              >
+                <i className="fas fa-bars"></i>
               </Button>
+
               <LinkContainer to="/">
                 <Navbar.Brand>amazona</Navbar.Brand>
               </LinkContainer>
@@ -93,7 +99,7 @@ export default function App() {
                       </Badge>
                     )}
                   </Link>
-              {userInfo ? (
+                  {userInfo ? (
                     <NavDropdown title={userInfo.name} id="basic-nav-dropdown">
                       <LinkContainer to="/profile">
                         <NavDropdown.Item>User Profile</NavDropdown.Item>
@@ -115,7 +121,7 @@ export default function App() {
                       Sign In
                     </Link>
                   )}
-                   {userInfo && userInfo.isAdmin && (
+                  {userInfo && userInfo.isAdmin && (
                     <NavDropdown title="Admin" id="admin-nav-dropdown">
                       <LinkContainer to="/admin/dashboard">
                         <NavDropdown.Item>Dashboard</NavDropdown.Item>
@@ -137,11 +143,12 @@ export default function App() {
           </Navbar>
         </header>
         <div
-        className={
-          sidebarIsOpen
-            ? 'active-nav side-navbar d-flex justify-content-between flex-wrap flex-column'
-            : 'side-navbar d-flex justify-content-between flex-wrap flex-column'
-        }>
+          className={
+            sidebarIsOpen
+              ? 'active-nav side-navbar d-flex justify-content-between flex-wrap flex-column'
+              : 'side-navbar d-flex justify-content-between flex-wrap flex-column'
+          }
+        >
           <Nav className="flex-column text-white w-100 p-2">
             <Nav.Item>
               <strong>Categories</strong>
@@ -159,35 +166,111 @@ export default function App() {
           </Nav>
         </div>
         <main>
-          <Container>
+          <Container className="mt-3">
             <Routes>
               <Route path="/product/:slug" element={<ProductScreen />} />
               <Route path="/cart" element={<CartScreen />} />
               <Route path="/search" element={<SearchScreen />} />
               <Route path="/signin" element={<SigninScreen />} />
               <Route path="/signup" element={<SignupScreen />} />
-              <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>}/>
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfileScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/map"
+                element={
+                  <ProtectedRoute>
+                    <MapScreen />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/placeorder" element={<PlaceOrderScreen />} />
-              <Route path="/payment" element={<PaymentMethodScreen />}></Route>
-                  {/* Admin Routes */}
-              <Route path="/admin/dashboard" element={<AdminRoute><DashboardScreen /></AdminRoute>}></Route>
-              <Route path="/admin/orders" element={<AdminRoute><OrderScreen /></AdminRoute>}></Route>
-              <Route path="/admin/users" element={<AdminRoute><UserScreen /></AdminRoute>}></Route>
-              <Route path="/admin/orders" element={<AdminRoute><OrderListScreen /></AdminRoute>}></Route>
-              <Route path="/admin/products" element={<AdminRoute><ProductListScreen /></AdminRoute>}></Route>
-              <Route path="/admin/product/:id" element={<AdminRoute><ProductEditScreen /></AdminRoute>}
+              <Route
+                path="/order/:id"
+                element={
+                  <ProtectedRoute>
+                    <OrderScreen />
+                  </ProtectedRoute>
+                }
               ></Route>
+              <Route
+                path="/orderhistory"
+                element={
+                  <ProtectedRoute>
+                    <OrderHistoryScreen />
+                  </ProtectedRoute>
+                }
+              ></Route>
+              <Route
+                path="/shipping"
+                element={<ShippingAddressScreen />}
+              ></Route>
+              <Route path="/payment" element={<PaymentMethodScreen />}></Route>
+              {/* Admin Routes */}
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <AdminRoute>
+                    <DashboardScreen />
+                  </AdminRoute>
+                }
+              ></Route>
+              <Route
+                path="/admin/orders"
+                element={
+                  <AdminRoute>
+                    <OrderListScreen />
+                  </AdminRoute>
+                }
+              ></Route>
+              <Route
+                path="/admin/users"
+                element={
+                  <AdminRoute>
+                    <UserListScreen />
+                  </AdminRoute>
+                }
+              ></Route>
+              <Route
+                path="/admin/products"
+                element={
+                  <AdminRoute>
+                    <ProductListScreen />
+                  </AdminRoute>
+                }
+              ></Route>
+              <Route
+                path="/admin/product/:id"
+                element={
+                  <AdminRoute>
+                    <ProductEditScreen />
+                  </AdminRoute>
+                }
+              ></Route>
+              <Route
+                path="/admin/user/:id"
+                element={
+                  <AdminRoute>
+                    <UserEditScreen />
+                  </AdminRoute>
+                }
+              ></Route>
+
               <Route path="/" element={<HomeScreen />} />
-              <Route path="/order/:id" element={<OrderScreen />}></Route>
-              <Route path="/orderhistory" element={<ProtectedRoute><OrderHistoryScreen /></ProtectedRoute>}></Route>
-              <Route path="/shipping" element={<ShippingAddressScreen />}></Route>
             </Routes>
           </Container>
         </main>
+        <footer>
+          <div className="text-center">All rights reserved</div>
+        </footer>
       </div>
-      <footer>
-        <div className="text-center">All rights reserved</div>
-      </footer>
     </BrowserRouter>
   );
 }
+
+export default App;
