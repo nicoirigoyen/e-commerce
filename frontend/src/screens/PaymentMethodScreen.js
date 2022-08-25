@@ -33,32 +33,34 @@ export default function PaymentMethodScreen() {
       <CheckoutSteps step1 step2 step3></CheckoutSteps>
       <div className="container small-container">
         <Helmet>
-          <title>Payment Method</title>
+          <title>Forma de pago</title>
         </Helmet>
-        <h1 className="my-3">Payment Method</h1>
+        <h1 className="my-3">Forma de pago</h1>
         <Form onSubmit={submitHandler}>
           <div className="mb-3">
             <Form.Check
               type="radio"
-              id="PayPal"
-              label="PayPal"
-              value="PayPal"
-              checked={paymentMethodName === 'PayPal'}
+              id="Tarjeta"
+              label="Tarjeta"
+              value="Tarjeta"
+              checked={paymentMethodName === 'Tarjeta'}
               onChange={(e) => setPaymentMethod(e.target.value)}
             />
           </div>
+
           <div className="mb-3">
             <Form.Check
               type="radio"
-              id="Stripe"
-              label="Stripe"
-              value="Stripe"
-              checked={paymentMethodName === 'Stripe'}
+              id="Efectivo"
+              label="Efectivo"
+              value="Efectivo"
+              checked={paymentMethodName === 'Efectivo'}
               onChange={(e) => setPaymentMethod(e.target.value)}
             />
           </div>
+
           <div className="mb-3">
-            <Button type="submit">Continue</Button>
+            <Button type="submit">Continuar</Button>
           </div>
         </Form>
       </div>

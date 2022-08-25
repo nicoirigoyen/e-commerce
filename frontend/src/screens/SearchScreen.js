@@ -130,11 +130,11 @@ export default function SearchScreen() {
   return (
     <div>
       <Helmet>
-        <title>Search Products</title>
+        <title>Buscar producto..</title>
       </Helmet>
       <Row>
         <Col md={3}>
-          <h3>Department</h3>
+          <h3>Departamento</h3>
           <div>
             <ul>
               <li>
@@ -142,7 +142,7 @@ export default function SearchScreen() {
                   className={'all' === category ? 'text-bold' : ''}
                   to={getFilterUrl({ category: 'all' })}
                 >
-                  Any
+                  Todos
                 </Link>
               </li>
               {categories.map((c) => (
@@ -158,14 +158,14 @@ export default function SearchScreen() {
             </ul>
           </div>
           <div>
-            <h3>Price</h3>
+            <h3>Precio</h3>
             <ul>
               <li>
                 <Link
                   className={'all' === price ? 'text-bold' : ''}
                   to={getFilterUrl({ price: 'all' })}
                 >
-                  Any
+                  Todos
                 </Link>
               </li>
               {prices.map((p) => (
@@ -181,7 +181,7 @@ export default function SearchScreen() {
             </ul>
           </div>
           <div>
-            <h3>Avg. Customer Review</h3>
+            <h3>Promedio Opinión del cliente</h3>
             <ul>
               {ratings.map((r) => (
                 <li key={r.name}>
@@ -240,15 +240,15 @@ export default function SearchScreen() {
                       navigate(getFilterUrl({ order: e.target.value }));
                     }}
                   >
-                    <option value="newest">Newest Arrivals</option>
-                    <option value="lowest">Price: Low to High</option>
-                    <option value="highest">Price: High to Low</option>
-                    <option value="toprated">Avg. Customer Reviews</option>
+                    <option value="newest">Nuevos ingresos</option>
+                    <option value="lowest">Precio: De menos a mayor</option>
+                    <option value="highest">Precio: De mayor a menor</option>
+                    <option value="toprated">Promedio Opinión del cliente</option>
                   </select>
                 </Col>
               </Row>
               {products.length === 0 && (
-                <MessageBox>No Product Found</MessageBox>
+                <MessageBox>No se encontró ningún producto</MessageBox>
               )}
 
               <Row>
