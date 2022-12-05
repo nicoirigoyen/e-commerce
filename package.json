@@ -19,5 +19,9 @@
   "homepage": "https://github.com/nicoirigoyen/e-commerce#readme",
   "dependencies": {
     "browserslist": "^4.21.3"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0"
   }
 }
