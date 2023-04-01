@@ -6,7 +6,7 @@ import { isAuth, isAdmin } from '../utils.js';
 const productRouter = express.Router();
 
 productRouter.get('/', async (req, res) => {
-  const products = await Product.find();
+  const products = await Product.find(); 
   res.send(products);
 });
 
@@ -15,7 +15,7 @@ productRouter.post(
   isAuth,
   isAdmin,
   expressAsyncHandler(async (req, res) => {
-    const newProduct = new Product({
+    const newProduct = new Product({ 
       name: 'sample name ' + Date.now(),
       slug: 'sample-name-' + Date.now(),
       image: '/images/p1.jpg',

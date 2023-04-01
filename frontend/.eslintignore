@@ -1,0 +1,7 @@
+**/*.js
+
+# Valid
+/root/src/*.js
+
+# Invalid
+\root\src\*.js
