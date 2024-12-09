@@ -15,7 +15,7 @@ export default function SearchBox() {
 
   return (
     <Form className="d-flex me-auto" onSubmit={submitHandler}>
-      <InputGroup className=''>
+      <InputGroup className="input-group-elegante rounded-pill shadow">
         <FormControl
           type="text"
           name="q"
@@ -24,11 +24,31 @@ export default function SearchBox() {
           placeholder="Buscar..."
           aria-label="Buscar Productos"
           aria-describedby="button-search"
-        ></FormControl>
-        <Button variant="outline-primary" type="submit" id="button-search">
+          className="border-0"
+          style={{
+            backgroundColor: '#ECF0F1', // Fondo gris claro
+            color: '#2C3E50', // Texto en azul oscuro
+          }}
+        />
+        <Button 
+          variant="light" 
+          type="submit" 
+          id="button-search" 
+          className="rounded-pill"
+          style={{
+            backgroundColor: '#1ABC9C', // Turquesa
+            color: '#FFFFFF', // Texto en blanco
+            transition: 'background-color 0.3s',
+          }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#F39C12'} // Cambia a naranja al pasar el mouse
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1ABC9C'} // Vuelve a turquesa al salir
+        >
           <i className="fas fa-search"></i>
         </Button>
       </InputGroup>
     </Form>
   );
+  
+  
+  
 }

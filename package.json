@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/nicoirigoyen/e-commerce#readme",
   "dependencies": {
-    "browserslist": "^4.21.3"
+    "browserslist": "^4.21.3",
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",

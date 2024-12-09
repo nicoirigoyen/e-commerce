@@ -134,7 +134,7 @@ export default function SearchScreen() {
       </Helmet>
       <Row>
         <Col md={3}>
-          <h3>Departamento</h3>
+          <h3>Categorias</h3>
           <div>
             <ul>
               <li>
@@ -181,7 +181,7 @@ export default function SearchScreen() {
             </ul>
           </div>
           <div>
-            <h3>Promedio Opinión del cliente</h3>
+            <h3>Mejor puntuados</h3>
             <ul>
               {ratings.map((r) => (
                 <li key={r.name}>
@@ -189,7 +189,7 @@ export default function SearchScreen() {
                     to={getFilterUrl({ rating: r.rating })}
                     className={`${r.rating}` === `${rating}` ? 'text-bold' : ''}
                   >
-                    <Rating caption={' & up'} rating={r.rating}></Rating>
+                    <Rating caption={' & mas'} rating={r.rating}></Rating>
                   </Link>
                 </li>
               ))}
@@ -198,7 +198,7 @@ export default function SearchScreen() {
                   to={getFilterUrl({ rating: 'all' })}
                   className={rating === 'all' ? 'text-bold' : ''}
                 >
-                  <Rating caption={' & up'} rating={0}></Rating>
+                  <Rating caption={' & mas'} rating={0}></Rating>
                 </Link>
               </li>
             </ul>
@@ -217,8 +217,8 @@ export default function SearchScreen() {
                     {countProducts === 0 ? 'No' : countProducts} Results
                     {query !== 'all' && ' : ' + query}
                     {category !== 'all' && ' : ' + category}
-                    {price !== 'all' && ' : Price ' + price}
-                    {rating !== 'all' && ' : Rating ' + rating + ' & up'}
+                    {price !== 'all' && ' : Percio ' + price}
+                    {rating !== 'all' && ' : Puntuacion ' + rating + ' & mas'}
                     {query !== 'all' ||
                     category !== 'all' ||
                     rating !== 'all' ||

@@ -22,10 +22,13 @@ export default function SigninScreen() {
   const { userInfo } = state;
   const submitHandler = async (e) => {
     e.preventDefault();
+    console.log('Email:', email);
+    console.log('Password:', password);
     try {
       const { data } = await Axios.post('/api/users/signin', {
-        email,
-        password,
+        email: email.trim(),
+        password: password.trim(),
+        
       });
       ctxDispatch({ type: 'USER_SIGNIN', payload: data });
       localStorage.setItem('userInfo', JSON.stringify(data));

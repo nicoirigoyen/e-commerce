@@ -21,6 +21,13 @@ mongoose
 
 const app = express();
 
+// Middleware para registrar encabezados
+app.use((req, res, next) => {
+  console.log('Headers:', req.headers);
+  next();
+});
+
+// Middleware para parsear JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -29,6 +36,10 @@ app.get('/api/keys/paypal', (req, res) => {
 });
 app.get('/api/keys/google', (req, res) => {
   res.send({ key: process.env.GOOGLE_API_KEY || '' });
+});
+app.use((req, res, next) => {
+  console.log('Headers:', req.headers);
+  next();
 });
 
 app.use('/api/upload', uploadRouter);
