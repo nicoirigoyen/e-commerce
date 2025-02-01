@@ -22,16 +22,21 @@ export default function SigninScreen() {
   const { userInfo } = state;
   const submitHandler = async (e) => {
     e.preventDefault();
-    console.log('Email:', email);
-    console.log('Password:', password);
     try {
       const { data } = await Axios.post('/api/users/signin', {
         email: email.trim(),
         password: password.trim(),
-        
       });
+  
+      // Guardar el usuario y los tokens en el contexto y en localStorage
       ctxDispatch({ type: 'USER_SIGNIN', payload: data });
-      localStorage.setItem('userInfo', JSON.stringify(data));
+      localStorage.setItem('userInfo', JSON.stringify(data));  // Guardar el usuario en localStorage
+  
+      // Guardar los tokens de manera segura:
+      localStorage.setItem('accessToken', data.accessToken);  // Access token en localStorage
+      // La cookie de refresh token es recomendable configurarla desde el backend:
+      document.cookie = `refreshToken=${data.refreshToken}; HttpOnly; Secure; path=/`;  // Refresh token en cookie HttpOnly
+  
       navigate(redirect || '/');
     } catch (err) {
       toast.error(getError(err));

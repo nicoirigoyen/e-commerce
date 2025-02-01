@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
 import mg from 'mailgun-js';
 
-export const generateToken = (user) => {
-  return jwt.sign(
+export const generateTokens = (user) => {
+  // Access Token (expira en 30 días)
+  const accessToken = jwt.sign(
     {
       _id: user._id,
       name: user.name,
@@ -11,9 +12,22 @@ export const generateToken = (user) => {
     },
     process.env.JWT_SECRET,
     {
-      expiresIn: '30d',
+      expiresIn: '1h',  // Esto ya lo tienes configurado
     }
   );
+
+  // Refresh Token (expira en 60 días, por ejemplo)
+  const refreshToken = jwt.sign(
+    {
+      _id: user._id,
+    },
+    process.env.JWT_REFRESH_SECRET,  // Una clave diferente para el refresh token
+    {
+      expiresIn: '1h',  // El tiempo puede ser más largo
+    }
+  );
+
+  return { accessToken, refreshToken };
 };
 
 export const isAuth = (req, res, next) => {
