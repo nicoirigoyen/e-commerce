@@ -1,51 +1,42 @@
 import jwt from 'jsonwebtoken';
 import mg from 'mailgun-js';
 
-export const generateTokens = (user) => {
-  // Access Token (expira en 30 días)
-  const accessToken = jwt.sign(
+// Función para generar el token de acceso
+export const generateToken = (user) => {
+  return jwt.sign(
     {
       _id: user._id,
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
     },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: '1h',  // Esto ya lo tienes configurado
-    }
+    process.env.JWT_SECRET, // Asegúrate de tener esta variable de entorno configurada
+    { expiresIn: '30d' } // El token expira en 30 días
   );
-
-  // Refresh Token (expira en 60 días, por ejemplo)
-  const refreshToken = jwt.sign(
-    {
-      _id: user._id,
-    },
-    process.env.JWT_REFRESH_SECRET,  // Una clave diferente para el refresh token
-    {
-      expiresIn: '1h',  // El tiempo puede ser más largo
-    }
-  );
-
-  return { accessToken, refreshToken };
 };
 
 export const isAuth = (req, res, next) => {
   const authorization = req.headers.authorization;
+
   if (authorization) {
-    const token = authorization.slice(7, authorization.length); // Bearer XXXXXX
+    const token = authorization.slice(7, authorization.length); // Se espera el formato "Bearer <token>"
+    console.log("Token recibido:", token);  // Verifica que el token esté llegando
+
     jwt.verify(token, process.env.JWT_SECRET, (err, decode) => {
       if (err) {
-        res.status(401).send({ message: 'Invalid Token' });
+        return res.status(401).send({ message: 'Token inválido o expirado' });
       } else {
-        req.user = decode;
-        next();
+        req.user = decode;  // Agregar los datos del usuario decodificados a la solicitud
+        next();  // Continuar con la siguiente función (ruta protegida)
       }
     });
   } else {
-    res.status(401).send({ message: 'No Token' });
+    return res.status(401).send({ message: 'No Token' });  // Si no se envió el token
   }
 };
+
+
+
 
 export const isAdmin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {

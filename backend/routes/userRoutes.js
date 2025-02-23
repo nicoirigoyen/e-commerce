@@ -2,7 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import expressAsyncHandler from 'express-async-handler';
 import User from '../models/userModel.js';
-import { isAuth, isAdmin, generateTokens } from '../utils.js';
+import { isAuth, isAdmin, generateToken } from '../utils.js';
 
 const userRouter = express.Router();
 
@@ -66,32 +66,34 @@ userRouter.delete(
     }
   })
 );
+
 userRouter.post(
   '/signin',
   expressAsyncHandler(async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
 
     if (user) {
+      console.log('Usuario encontrado:', user);  // Verifica que el usuario esté bien obtenido
       if (bcrypt.compareSync(req.body.password, user.password)) {
-        // Genera ambos tokens (access y refresh)
-        const { accessToken, refreshToken } = generateTokens(user);  
-
-        // Responde con los datos del usuario y ambos tokens
+        console.log('Contraseña validada');
+        const token = generateToken(user);  // Generación del token
+        console.log('Token generado:', token);  // Verifica que el token sea generado
         res.send({
           _id: user._id,
           name: user.name,
           email: user.email,
           isAdmin: user.isAdmin,
-          accessToken,  //  token de corta duración
-          refreshToken, //  token de larga duración
+          token: token,  // Enviar el token en la respuesta
         });
         return;
       }
     }
-
-    res.status(401).send({ message: 'Usuario o contraseña invalida' });
+    res.status(401).send({ message: 'Invalid email or password' });
   })
 );
+
+
+
 
 userRouter.post(
   '/signup',
@@ -107,7 +109,7 @@ userRouter.post(
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
-      token: generateTokens(user),
+      token: generateToken(user),
     });
   })
 );
@@ -130,7 +132,7 @@ userRouter.put(
         name: updatedUser.name,
         email: updatedUser.email,
         isAdmin: updatedUser.isAdmin,
-        token: generateTokens(updatedUser),
+        token: generateToken(updatedUser),
       });
     } else {
       res.status(404).send({ message: 'User not found' });

@@ -20,8 +20,10 @@ export default function SigninScreen() {
 
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { userInfo } = state;
+
   const submitHandler = async (e) => {
     e.preventDefault();
+  
     try {
       const { data } = await Axios.post('/api/users/signin', {
         email: email.trim(),
@@ -42,6 +44,7 @@ export default function SigninScreen() {
       toast.error(getError(err));
     }
   };
+  
 
   useEffect(() => {
     if (userInfo) {
@@ -52,9 +55,9 @@ export default function SigninScreen() {
   return (
     <Container className="small-container">
       <Helmet>
-        <title>Registrarse</title>
+        <title>Iniciar Sesión</title>
       </Helmet>
-      <h1 className="my-3">Iniciar Sesion</h1>
+      <h1 className="my-3">Iniciar Sesión</h1>
       <Form onSubmit={submitHandler}>
         <Form.Group className="mb-3" controlId="email">
           <Form.Label>Email</Form.Label>
@@ -76,7 +79,7 @@ export default function SigninScreen() {
           <Button type="submit">Ingresar</Button>
         </div>
         <div className="mb-3">
-          Nuevo Cliente?{' '}
+          ¿Nuevo Cliente?{' '}
           <Link to={`/signup?redirect=${redirect}`}>Crear una cuenta</Link>
         </div>
       </Form>
