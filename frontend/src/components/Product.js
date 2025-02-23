@@ -5,6 +5,7 @@ import Rating from './Rating';
 import axios from 'axios';
 import { useContext } from 'react';
 import { Store } from '../Store';
+import styled from 'styled-components';
 
 function Product(props) {
   const { product } = props;
@@ -29,16 +30,16 @@ function Product(props) {
   };
 
   return (
-    <Card>
+    <ProductCard>
       <Link to={`/product/${product.slug}`}>
-        <img src={product.image} className="card-img-top" alt={product.name} />
+        <ProductImage src={product.image} alt={product.name} />
       </Link>
       <Card.Body>
         <Link to={`/product/${product.slug}`}>
-          <Card.Title>{product.name}</Card.Title>
+          <ProductTitle>{product.name}</ProductTitle>
         </Link>
         <Rating rating={product.rating} numReviews={product.numReviews} />
-        <Card.Text>${product.price}</Card.Text>
+        <ProductPrice>${product.price}</ProductPrice>
         {product.countInStock === 0 ? (
           <Button variant="danger" disabled>
             Agotado
@@ -47,7 +48,40 @@ function Product(props) {
           <Button onClick={() => addToCartHandler(product)}>Agregar al carrito</Button>
         )}
       </Card.Body>
-    </Card>
+    </ProductCard>
   );
 }
+
+const ProductCard = styled(Card)`
+  border: 1px solid #ddd;
+  border-radius: 12px; /* Bordes redondeados */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px); /* Efecto hover */
+  }
+`;
+
+const ProductImage = styled.img`
+  width: 100%;
+  height: 250px;
+  object-fit: contain; /* Ajustar imagen al contenedor */
+  border-bottom: 1px solid #ddd;
+`;
+
+const ProductTitle = styled(Card.Title)`
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+`;
+
+const ProductPrice = styled(Card.Text)`
+  font-size: 1.2rem;
+  color: #28a745;
+  font-weight: 700;
+`;
+
 export default Product;

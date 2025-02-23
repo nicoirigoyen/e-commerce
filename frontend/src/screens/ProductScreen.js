@@ -39,8 +39,7 @@ const reducer = (state, action) => {
 };
 
 function ProductScreen() {
-  let reviewsRef = useRef();
-
+  const reviewsRef = useRef();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [selectedImage, setSelectedImage] = useState('');
@@ -55,6 +54,7 @@ function ProductScreen() {
       loading: true,
       error: '',
     });
+
   useEffect(() => {
     const fetchData = async () => {
       dispatch({ type: 'FETCH_REQUEST' });
@@ -70,12 +70,13 @@ function ProductScreen() {
 
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { cart, userInfo } = state;
+
   const addToCartHandler = async () => {
     const existItem = cart.cartItems.find((x) => x._id === product._id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
     const { data } = await axios.get(`/api/products/${product._id}`);
     if (data.countInStock < quantity) {
-      window.alert('Disculpe. Producto sin stock');
+      window.alert('Producto sin stock');
       return;
     }
     ctxDispatch({
@@ -88,7 +89,7 @@ function ProductScreen() {
   const submitHandler = async (e) => {
     e.preventDefault();
     if (!comment || !rating) {
-      toast.error('Please enter comment and rating');
+      toast.error('Por favor ingrese comentario y calificación');
       return;
     }
     try {
@@ -117,12 +118,13 @@ function ProductScreen() {
       dispatch({ type: 'CREATE_FAIL' });
     }
   };
+
   return loading ? (
     <LoadingBox />
   ) : error ? (
     <MessageBox variant="danger">{error}</MessageBox>
   ) : (
-    <div>
+    <div className="product-screen">
       <Row>
         <Col md={6}>
           <img
@@ -145,7 +147,7 @@ function ProductScreen() {
                 numReviews={product.numReviews}
               ></Rating>
             </ListGroup.Item>
-            <ListGroup.Item>Precio : ${product.price}</ListGroup.Item>
+            <ListGroup.Item>Precio: ${product.price}</ListGroup.Item>
             <ListGroup.Item>
               <Row xs={1} md={2} className="g-2">
                 {[product.image, ...product.images].map((x) => (
@@ -165,7 +167,7 @@ function ProductScreen() {
               </Row>
             </ListGroup.Item>
             <ListGroup.Item>
-              Descripcion:
+              Descripción:
               <p>{product.description}</p>
             </ListGroup.Item>
           </ListGroup>
@@ -208,10 +210,10 @@ function ProductScreen() {
         </Col>
       </Row>
       <div className="my-3">
-        <h2 ref={reviewsRef}>Calificacion</h2>
+        <h2 ref={reviewsRef}>Calificación</h2>
         <div className="mb-3">
           {product.reviews.length === 0 && (
-            <MessageBox>No hay calificacion</MessageBox>
+            <MessageBox>No hay calificaciones</MessageBox>
           )}
         </div>
         <ListGroup>
@@ -229,7 +231,7 @@ function ProductScreen() {
             <form onSubmit={submitHandler}>
               <h2>Escribe un comentario del producto</h2>
               <Form.Group className="mb-3" controlId="rating">
-                <Form.Label>Rating</Form.Label>
+                <Form.Label>Calificación</Form.Label>
                 <Form.Select
                   aria-label="Rating"
                   value={rating}
@@ -245,12 +247,12 @@ function ProductScreen() {
               </Form.Group>
               <FloatingLabel
                 controlId="floatingTextarea"
-                label="Comments"
+                label="Comentarios"
                 className="mb-3"
               >
                 <Form.Control
                   as="textarea"
-                  placeholder="Leave a comment here"
+                  placeholder="Deja tu comentario aquí"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                 />
@@ -269,7 +271,7 @@ function ProductScreen() {
               <Link to={`/signin?redirect=/product/${product.slug}`}>
                 Registrarse
               </Link>{' '}
-              escribe una reseña
+              para escribir una reseña
             </MessageBox>
           )}
         </div>
@@ -277,4 +279,5 @@ function ProductScreen() {
     </div>
   );
 }
+
 export default ProductScreen;

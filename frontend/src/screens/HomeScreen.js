@@ -1,15 +1,16 @@
-import { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import axios from 'axios';
 import logger from 'use-reducer-logger';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Product from '../components/Product'; // Componente de producto
 import { Helmet } from 'react-helmet-async';
+import Product from '../components/Product'; // Componente de producto
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
-import FeaturedSection from '../components/FeaturedSection';  // Importamos la sección destacada
+import FeaturedSection from '../components/FeaturedSection';
+import { HomeContainer, SectionTitle, ProductContainer, WhatsAppButton } from '../estilos/HomeSreenStyles'; // Actualizamos el nombre
 
-// Reducer para manejar el estado de los productos
+// Importamos el ícono de WhatsApp
+import { FaWhatsapp } from 'react-icons/fa'; // Importa el ícono de WhatsApp desde react-icons
+
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
@@ -23,23 +24,19 @@ const reducer = (state, action) => {
   }
 };
 
-function HomeScreen() {
+const HomeScreen = () => {
   const [{ loading, error, products }, dispatch] = useReducer(logger(reducer), {
     products: [],
     loading: true,
     error: '',
   });
 
-  const [product, setProducts] = useState([]);
-
-  // Cargar los productos desde la API cuando el componente se monte
   useEffect(() => {
     const fetchData = async () => {
       dispatch({ type: 'FETCH_REQUEST' });
       try {
-        const result = await axios.get('/api/products');  // Cambia esta URL según tu API
+        const result = await axios.get('/api/products');
         dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
-        setProducts(result.data);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: err.message });
       }
@@ -48,32 +45,38 @@ function HomeScreen() {
   }, []);
 
   return (
-    <div>
+    <HomeContainer>
       <Helmet>
         <title>UpSeeBuy</title>
       </Helmet>
+      
+      {/* Sección destacada */}
+      <FeaturedSection />
 
-      {/* Sección destacada de productos, noticias o promociones */}
-      <FeaturedSection /> {/* Este componente muestra las cartas en un carrusel */}
+      <SectionTitle>Productos Destacados</SectionTitle>
 
-      <h1>Productos Destacados</h1>
-      <div className="products">
+      <ProductContainer>
         {loading ? (
           <LoadingBox />
         ) : error ? (
           <MessageBox variant="danger">{error}</MessageBox>
         ) : (
-          <Row>
-            {products.map((product) => (
-              <Col key={product.slug} sm={6} md={4} lg={3} className="mb-3">
-                <Product product={product}></Product>  {/* Muestra cada producto con su componente */}
-              </Col>
-            ))}
-          </Row>
+          products.map((product) => (
+            <Product key={product.slug} product={product} />
+          ))
         )}
-      </div>
-    </div>
+      </ProductContainer>
+
+      {/* Botón de WhatsApp */}
+      <WhatsAppButton 
+        href="https://wa.me/1234567890"  // Cambia este número por el tuyo
+        target="_blank" // Abre el enlace en una nueva pestaña
+        rel="noopener noreferrer"
+      >
+        <FaWhatsapp size={30} color="white" /> {/* Ícono de WhatsApp */}
+      </WhatsAppButton>
+    </HomeContainer>
   );
-}
+};
 
 export default HomeScreen;
