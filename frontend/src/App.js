@@ -75,7 +75,7 @@ function App() {
       >
         <ToastContainer position="bottom-center" limit={1} />
 
-        <header class="shadow p-2 mb-5 bg-dark">
+        <header class="shadow p-2 bg-dark">
           
           <Navbar bg="gradient" variant="dark" expand="lg" >
             <Container>
