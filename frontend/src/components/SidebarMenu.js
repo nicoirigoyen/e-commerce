@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../estilos/SidebarMenu.css';
+import lupa from '../assets/img/lupa.png';
+
 
 
 export default function SidebarMenu({ categories, onClose }) {
   const [pestañaActiva, setPestañaActiva] = useState('menu');
   const [cerrando, setCerrando] = useState(false);
   const [query, setQuery] = useState('');
+  const [animarTransicion, setAnimarTransicion] = useState(false);
+
   const navigate = useNavigate();
 
   const handleClose = () => {
@@ -24,13 +28,21 @@ export default function SidebarMenu({ categories, onClose }) {
     }
   };
 
+  const cambiarPestaña = (nueva) => {
+    setAnimarTransicion(true);
+    setTimeout(() => {
+      setPestañaActiva(nueva);
+      setAnimarTransicion(false);
+    }, 150); // Para que la animación de desvanecimiento se vea
+  };
+
   return (
     <div className="sidebar-menu-overlay" onClick={handleClose}>
       <div
         className={`sidebar-menu ${cerrando ? 'slide-out' : ''}`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Buscador con funcionalidad */}
+        {/* Buscador */}
         <form className="sidebar-search" onSubmit={submitHandler}>
           <input
             type="text"
@@ -39,28 +51,28 @@ export default function SidebarMenu({ categories, onClose }) {
             onChange={(e) => setQuery(e.target.value)}
           />
           <button type="submit">
-            <i className="fas fa-search"></i>
+          <img src={lupa} alt="Buscar" className="icono-lupa" />
           </button>
         </form>
 
         {/* Pestañas */}
         <div className="sidebar-tabs">
           <button
-            className={pestañaActiva === 'menu' ? 'active' : ''}
-            onClick={() => setPestañaActiva('menu')}
+            className={pestañaActiva === 'menu' ? 'active' : 'inactive'}
+            onClick={() => cambiarPestaña('menu')}
           >
-            MENÚ
+            MENU
           </button>
           <button
-            className={pestañaActiva === 'categorias' ? 'active' : ''}
-            onClick={() => setPestañaActiva('categorias')}
+            className={pestañaActiva === 'categorias' ? 'active' : 'inactive'}
+            onClick={() => cambiarPestaña('categorias')}
           >
             CATEGORÍAS
           </button>
         </div>
 
         {/* Contenido */}
-        <div className="sidebar-content">
+        <div className={`sidebar-content ${animarTransicion ? 'fade' : ''}`}>
           {pestañaActiva === 'menu' ? (
             <ul className="menu-list">
               <li><Link to="/garantias">GARANTÍAS <span className="badge importante">IMPORTANTE!</span></Link></li>
