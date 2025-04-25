@@ -78,7 +78,7 @@ function HomeScreen() {
       </Helmet>
       
       {/* ✅ Nueva Barra de Categorías */}
-      <nav className="nav-bar">
+      <nav className="nav-bar ocultar-en-mobile">
         <CategoryDropdown />
         <button className="nav-button">Garantías</button>
         <button className="nav-button">Nuevo Ingreso</button>

@@ -179,3 +179,16 @@ button.thumbnail {
   color: #ff9800; /* Color de hover */
   font-weight: bold;
 }
+
+@media (max-width: 1000px) {
+  .ocultar-en-mobile {
+    display: none !important;
+  }
+}
+
+/* Oculta el botón en pantallas grandes */
+@media (min-width: 1000px) {
+  .solo-mobile {
+    display: none !important;
+  }
+}
