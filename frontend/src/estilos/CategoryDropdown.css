@@ -1,0 +1,74 @@
+/* 🔽 Contenedor del Dropdown */
+.category-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+/* 🔽 Botón de Categorías */
+.category-button {
+    background-color: #ffc107; /* Amarillo */
+    color: #000;
+    padding: 12px 18px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 220px; /* Tamaño uniforme */
+    font-size: 16px;
+}
+
+/* 🔽 Ícono en el botón */
+.category-button i {
+    margin-right: 10px;
+}
+
+.category-button:hover {
+    background-color: #e0a800;
+}
+
+/* 🔽 Lista de Categorías (inicialmente oculta) */
+.category-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    min-width: 220px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 100;
+}
+
+/* 🔽 Mostrar lista al pasar el mouse */
+.category-dropdown:hover .category-list {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* 🔽 Botones de las Categorías */
+.category-list button {
+    display: block;
+    background: none;
+    border: none;
+    padding: 12px;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+}
+
+.category-list button:hover {
+    background-color: #f1f1f1; /* Fondo gris claro */
+    color: #333; /* Color de texto más oscuro */
+    font-weight: bold;
+}

@@ -34,6 +34,8 @@ import OrderListScreen from './screens/OrderListScreen';
 import UserListScreen from './screens/UserListScreen';
 import UserEditScreen from './screens/UserEditScreen';
 import MapScreen from './screens/MapScreen';
+import SidebarMenu from './components/SidebarMenu';
+
 
 function App() {
   const { state, dispatch: ctxDispatch } = useContext(Store);
@@ -62,32 +64,24 @@ function App() {
   }, []);
   return (
     <BrowserRouter>
-      <div 
-        className={
-          sidebarIsOpen
-            ? fullBox
-              ? 'site-container active-cont d-flex flex-column full-box'
-              : 'site-container active-cont d-flex flex-column'
-            : fullBox
-            ? 'site-container d-flex flex-column full-box'
-            : 'site-container d-flex flex-column'
-        }
-      >
+      <div className={fullBox ? 'site-container d-flex flex-column full-box' : 'site-container d-flex flex-column'}>
+
         <ToastContainer position="bottom-center" limit={1} />
 
-        <header class="shadow p-2 mb-5 bg-dark">
+        <header class="shadow p-2 bg-dark">
           
           <Navbar bg="gradient" variant="dark" expand="lg" >
             <Container>
               <Button
                 variant="dark"
                 onClick={() => setSidebarIsOpen(!sidebarIsOpen)}
+                className="me-2 solo-mobile"
               >
                 <i className="fas fa-bars"></i>
               </Button>
 
               <LinkContainer to="/">
-                <Navbar.Brand> &nbsp; Nombe App</Navbar.Brand>
+                <Navbar.Brand> &nbsp; Ecommerce</Navbar.Brand>
               </LinkContainer>
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav">
@@ -145,29 +139,15 @@ function App() {
             </Container>
           </Navbar>
         </header>
-        <div 
-          className={
-            sidebarIsOpen
-              ? 'active-nav side-navbar d-flex justify-content-between flex-wrap flex-column bg-dark'
-              : 'side-navbar d-flex justify-content-between flex-wrap flex-column'
-          }
-        >
-          <Nav className="flex-column text-white w-100 p-2">
-            <Nav.Item>
-              <strong>Categorias</strong>
-            </Nav.Item>
-            {categories.map((category) => (
-              <Nav.Item key={category}>
-                <LinkContainer
-                  to={`/search?category=${category}`}
-                  onClick={() => setSidebarIsOpen(false)}
-                >
-                  <Nav.Link>{category}</Nav.Link>
-                </LinkContainer>
-              </Nav.Item>
-            ))}
-          </Nav>
-        </div>
+
+
+        {sidebarIsOpen && (
+          <SidebarMenu
+            categories={categories}
+            onClose={() => setSidebarIsOpen(false)}
+          />
+        )}
+
         <main>
           <Container className="mt-3">
             <Routes>
