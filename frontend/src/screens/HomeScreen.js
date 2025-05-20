@@ -11,7 +11,6 @@ import { HomeContainer, SectionTitle, ProductContainer, WhatsAppButton } from '.
 
 // Importamos el ícono de WhatsApp
 import { FaWhatsapp } from 'react-icons/fa'; // Importa el ícono de WhatsApp desde react-icons
-import FeaturedSection from '../components/FeaturedSection';  // Importamos la sección destacada
 import CategoryDropdown from '../components/CategoryDropdown';
 
 
@@ -101,7 +100,7 @@ const HomeScreen = () => {
             <Product key={product.slug} product={product} />
           ))
         )}
-      </ProductContainer>
+      </div>
 
       {/* Botón de WhatsApp */}
       <WhatsAppButton 
