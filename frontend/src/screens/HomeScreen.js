@@ -89,7 +89,7 @@ const HomeScreen = () => {
 
 
       {/* Productos */}
-      <SectionTitle>Productos Destacados</SectionTitle>
+
       <div className="products">
         {loading ? (
           <LoadingBox />

@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 const data = {
   users: [
     {
-      name: 'Adminsitrador',
+      name: 'Administrador',
       email: 'admin@example.com',
       password: bcrypt.hashSync('123456'),
       isAdmin: true,
@@ -17,11 +17,10 @@ const data = {
   ],
   products: [
     {
-      // _id: '1',
       name: 'Nike Slim shirt',
       slug: 'nike-slim-shirt',
       category: 'Remeras',
-      image: '/images/p1.jpg', // 679px × 829px
+      image: '/images/p1.jpg',
       price: 120,
       countInStock: 10,
       brand: 'Nike',
@@ -30,7 +29,6 @@ const data = {
       description: 'Remera de alta calidad',
     },
     {
-      // _id: '2',
       name: 'Adidas Fit Shirt',
       slug: 'adidas-fit-shirt',
       category: 'Zapatillas',
@@ -43,7 +41,6 @@ const data = {
       description: 'Prenda de alta calidad',
     },
     {
-      // _id: '3',
       name: 'Nike Slim Pant',
       slug: 'nike-slim-pant',
       category: 'Pantalones',
@@ -56,7 +53,6 @@ const data = {
       description: 'Producto de alta calidad',
     },
     {
-      // _id: '4',
       name: 'Adidas Fit Pant',
       slug: 'adidas-fit-pant',
       category: 'Abrigos',
@@ -69,5 +65,32 @@ const data = {
       description: 'Producto de alta calidad',
     },
   ],
+  featuredItems: [
+    {
+      id: 1,
+      title: '¡Nueva colección de verano!',
+      description: 'Descubrí los nuevos estilos para la temporada 2025.',
+      imageUrl: '/images/coleccion-verano.jpg',
+      link: '/coleccion/verano',
+      active: true,
+    },
+    {
+      id: 2,
+      title: 'Semana de descuentos',
+      description: 'Hasta 50% de descuento en productos seleccionados.',
+      imageUrl: '/images/ofertas-semana.jpg',
+      link: '/ofertas',
+      active: true,
+    },
+    {
+      id: 3,
+      title: 'Tienda online renovada',
+      description: 'Estrenamos diseño, ¡mucha más facilidad de navegación!',
+      imageUrl: '/images/tienda-renovada.jpg',
+      link: '/nueva-tienda',
+      active: true,
+    },
+  ],
 };
+
 export default data;

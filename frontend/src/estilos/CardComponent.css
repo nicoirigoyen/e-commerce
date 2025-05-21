@@ -1,15 +1,21 @@
-/* CardComponent.css */
 .featured-card {
-    border: none;
-    border-radius: 10px;
-  }
-  
-  .featured-card .card-img-top {
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-  }
-  
-  button {
-    font-size: 16px; /* Ajusta el tamaño de los botones */
-  }
-  
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.featured-card .card-img-top {
+  height: 200px;            /* Altura fija */
+  width: 100%;
+  object-fit: cover;        /* Asegura que la imagen se recorte sin deformarse */
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.featured-card .card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+}
