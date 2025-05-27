@@ -1,11 +1,8 @@
-// CardComponent.jsx
 import React from 'react';
 import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
+import { Button } from '@mui/material';
 import { Link } from 'react-router-dom';
-import Rating from './Rating'; // Este componente lo usaremos solo para productos
-import { useContext } from 'react';
-import { Store } from '../Store'; // Para el carrito, si es necesario
+import Rating from './Rating';
 import '../estilos/CardComponent.css';
 
 function CardComponent({ item, isProduct, addToCartHandler }) {
@@ -15,7 +12,7 @@ function CardComponent({ item, isProduct, addToCartHandler }) {
         <img src={item.imageUrl} className="card-img-top" alt={item.title} />
       </Link>
       <Card.Body>
-        <Link to={item.link}>
+        <Link to={item.link} style={{ textDecoration: 'none', color: 'inherit' }}>
           <Card.Title>{item.title}</Card.Title>
         </Link>
         <Card.Text>{item.description}</Card.Text>
@@ -25,16 +22,33 @@ function CardComponent({ item, isProduct, addToCartHandler }) {
             <Rating rating={item.rating} numReviews={item.numReviews} />
             <Card.Text>${item.price}</Card.Text>
             {item.countInStock === 0 ? (
-              <Button variant="danger" disabled>
+              <Button 
+                variant="contained" 
+                color="error" 
+                disabled
+                sx={{ borderRadius: 2, textTransform: 'none' }}
+              >
                 Agotado
               </Button>
             ) : (
-              <Button onClick={() => addToCartHandler(item)}>Ver más</Button>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={() => addToCartHandler(item)}
+                sx={{ borderRadius: 2, textTransform: 'none' }}
+              >
+                Ver más
+              </Button>
             )}
           </>
         ) : (
-          // Si no es un producto, solo mostramos un botón de "Leer más" o "Ver más"
-          <Button variant="primary">Ver más</Button>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            sx={{ borderRadius: 2, textTransform: 'none' }}
+          >
+            Ver más
+          </Button>
         )}
       </Card.Body>
     </Card>

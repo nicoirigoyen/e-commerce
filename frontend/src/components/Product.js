@@ -1,26 +1,24 @@
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
+import React, { useContext } from 'react';
+import { Card, CardMedia, CardContent, Typography, CardActions, Button, Box, Tooltip } from '@mui/material';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 import { Link } from 'react-router-dom';
-import Rating from './Rating';
 import axios from 'axios';
-import { useContext } from 'react';
 import { Store } from '../Store';
-import styled from 'styled-components';
 
-function Product(props) {
-  const { product } = props;
-
+function Product({ product }) {
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const {
     cart: { cartItems },
   } = state;
 
   const addToCartHandler = async (item) => {
-    const existItem = cartItems.find((x) => x._id === product._id);
+    const existItem = cartItems.find((x) => x._id === item._id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
     const { data } = await axios.get(`/api/products/${item._id}`);
     if (data.countInStock < quantity) {
-      window.alert('Sorry. Product is out of stock');
+      window.alert('Lo sentimos, el producto está agotado');
       return;
     }
     ctxDispatch({
@@ -29,59 +27,86 @@ function Product(props) {
     });
   };
 
+  // Renderizado simple de estrellas según rating
+  const renderRating = (rating) => {
+    return Array.from({ length: 5 }, (_, i) =>
+      i < Math.floor(rating) ? (
+        <StarIcon key={i} sx={{ color: '#fbc02d' }} />
+      ) : (
+        <StarBorderIcon key={i} sx={{ color: '#fbc02d' }} />
+      )
+    );
+  };
+
   return (
-    <ProductCard>
-      <Link to={`/product/${product.slug}`}>
-        <ProductImage src={product.image} alt={product.name} />
+    <Card
+      sx={{
+        maxWidth: 320,
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: 3,
+        boxShadow: 3,
+        transition: 'transform 0.3s ease',
+        '&:hover': {
+          transform: 'scale(1.05)',
+          boxShadow: 6,
+        },
+      }}
+      elevation={4}
+    >
+      <Link to={`/product/${product.slug}`} style={{ textDecoration: 'none' }}>
+        <CardMedia
+          component="img"
+          height="240"
+          image={product.image}
+          alt={product.name}
+          sx={{ objectFit: 'contain', bgcolor: '#fafafa' }}
+        />
       </Link>
-      <Card.Body>
-        <Link to={`/product/${product.slug}`}>
-          <ProductTitle>{product.name}</ProductTitle>
+      <CardContent sx={{ flexGrow: 1 }}>
+        <Link to={`/product/${product.slug}`} style={{ textDecoration: 'none' }}>
+          <Typography variant="h6" component="div" gutterBottom sx={{ color: '#333', fontWeight: '700' }}>
+            {product.name}
+          </Typography>
         </Link>
-        <Rating rating={product.rating} numReviews={product.numReviews} />
-        <ProductPrice>${product.price}</ProductPrice>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          {renderRating(product.rating)}
+          <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
+            ({product.numReviews})
+          </Typography>
+        </Box>
+        <Typography variant="h6" sx={{ color: 'success.main', fontWeight: 'bold' }}>
+          ${product.price}
+        </Typography>
+      </CardContent>
+      <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
         {product.countInStock === 0 ? (
-          <Button variant="danger" disabled>
-            Agotado
-          </Button>
+          <Tooltip title="Producto agotado">
+            <span>
+              <Button variant="contained" color="error" disabled startIcon={<ShoppingCartIcon />} fullWidth>
+                Agotado
+              </Button>
+            </span>
+          </Tooltip>
         ) : (
-          <Button onClick={() => addToCartHandler(product)}>Agregar al carrito</Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<ShoppingCartIcon />}
+            fullWidth
+            onClick={() => addToCartHandler(product)}
+            sx={{
+              textTransform: 'none',
+              fontWeight: '700',
+              '&:hover': { backgroundColor: 'primary.dark' },
+            }}
+          >
+            Agregar al carrito
+          </Button>
         )}
-      </Card.Body>
-    </ProductCard>
+      </CardActions>
+    </Card>
   );
 }
-
-const ProductCard = styled(Card)`
-  border: 1px solid #ddd;
-  border-radius: 12px; /* Bordes redondeados */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s ease;
-
-  &:hover {
-    transform: translateY(-5px); /* Efecto hover */
-  }
-`;
-
-const ProductImage = styled.img`
-  width: 100%;
-  height: 250px;
-  object-fit: contain; /* Ajustar imagen al contenedor */
-  border-bottom: 1px solid #ddd;
-`;
-
-const ProductTitle = styled(Card.Title)`
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 8px;
-`;
-
-const ProductPrice = styled(Card.Text)`
-  font-size: 1.2rem;
-  color: #28a745;
-  font-weight: 700;
-`;
 
 export default Product;

@@ -1,18 +1,24 @@
-import React, { useEffect, useReducer, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Importa useNavigate
+import React, { useEffect, useReducer } from 'react';
+import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
 import logger from 'use-reducer-logger';
-import { Helmet } from 'react-helmet-async';
-import Product from '../components/Product'; // Componente de producto
+import Product from '../components/Product';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import FeaturedSection from '../components/FeaturedSection';
-import { HomeContainer, SectionTitle, ProductContainer, WhatsAppButton } from '../estilos/HomeSreenStyles'; // Actualizamos el nombre
-
-// Importamos el ícono de WhatsApp
-import { FaWhatsapp } from 'react-icons/fa'; // Importa el ícono de WhatsApp desde react-icons
 import CategoryDropdown from '../components/CategoryDropdown';
+import { FaWhatsapp } from 'react-icons/fa';
 
+// MUI
+import {
+  Container,
+  Typography,
+  Box,
+  Button,
+  Grid,
+  Fab,
+  Paper,
+} from '@mui/material';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -40,7 +46,6 @@ const HomeScreen = () => {
       try {
         const result = await axios.get('/api/products');
         dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
-        //setProducts(result.data);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: err.message });
       }
@@ -48,69 +53,73 @@ const HomeScreen = () => {
     fetchData();
   }, []);
 
-  // Obtener categorías desde la API
-  /*useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const { data } = await axios.get('/api/products/categories');
-        setCategories(data);
-      } catch (err) {
-        console.error('Error fetching categories:', err.message);
-      }
-    };
-    fetchCategories();
-  }, []);
-
-    // Manejar selección de categoría y redirección
-    const selectCategoryHandler = (category) => {
-      navigate(`/search?category=${category}`); // Redirige al usuario a la URL de búsqueda con la categoría
-    };
-*/
   return (
-    <HomeContainer>
+    <Container maxWidth="lg" sx={{ pt: 4, pb: 10 }}>
       <Helmet>
         <title>UpSeeBuy</title>
       </Helmet>
-      
-      {/* ✅ Nueva Barra de Categorías */}
-      <nav className="nav-bar ocultar-en-mobile">
+
+      {/* Categorías */}
+      <Paper
+        elevation={3}
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          p: 2,
+          mb: 4,
+          bgcolor: 'background.paper',
+          borderRadius: 2,
+        }}
+      >
         <CategoryDropdown />
-        <button className="nav-button">Garantías</button>
-        <button className="nav-button">Nuevo Ingreso</button>
-        <button className="nav-button">Oferta Flash!</button>
-        <button className="nav-button">Preorden</button>
-        <button className="nav-button">Contacto</button>
-        <button className="nav-button">Inicio</button>
-      </nav>
-      
-      {/* Sección destacada de productos, noticias o promociones */}
-      <FeaturedSection /> {/* Este componente muestra las cartas en un carrusel */}
+        {['Garantías', 'Nuevo Ingreso', 'Oferta Flash!', 'Preorden', 'Contacto', 'Inicio'].map((text) => (
+          <Button key={text} variant="outlined" color="primary">
+            {text}
+          </Button>
+        ))}
+      </Paper>
 
-
+      {/* Destacados */}
+      <FeaturedSection />
 
       {/* Productos */}
-
-      <div className="products">
+      <Box sx={{ mt: 6 }}>
+        <Typography variant="h5" gutterBottom>
+          Productos destacados
+        </Typography>
         {loading ? (
           <LoadingBox />
         ) : error ? (
           <MessageBox variant="danger">{error}</MessageBox>
         ) : (
-          products.map((product) => (
-            <Product key={product.slug} product={product} />
-          ))
+          <Grid container spacing={3}>
+            {products.map((product) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={product.slug}>
+                <Product product={product} />
+              </Grid>
+            ))}
+          </Grid>
         )}
-      </div>
+      </Box>
 
-      {/* Botón de WhatsApp */}
-      <WhatsAppButton 
-        href="https://wa.me/1234567890"  // Cambia este número por el tuyo
-        target="_blank" // Abre el enlace en una nueva pestaña
+      {/* WhatsApp */}
+      <Fab
+        color="success"
+        aria-label="whatsapp"
+        sx={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          zIndex: 1000,
+        }}
+        href="https://wa.me/1234567890"
+        target="_blank"
         rel="noopener noreferrer"
       >
-        <FaWhatsapp size={30} color="white" /> {/* Ícono de WhatsApp */}
-      </WhatsAppButton>
-    </HomeContainer>
+        <FaWhatsapp size={24} />
+      </Fab>
+    </Container>
   );
 };
 

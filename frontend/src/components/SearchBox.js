@@ -1,54 +1,54 @@
+// components/SearchBox.js
 import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import FormControl from 'react-bootstrap/FormControl';
 import { useNavigate } from 'react-router-dom';
+import { InputBase, IconButton, Paper } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import { motion } from 'framer-motion';
 
 export default function SearchBox() {
-  const navigate = useNavigate();
   const [query, setQuery] = useState('');
+  const [focused, setFocused] = useState(false);
+  const navigate = useNavigate();
+
   const submitHandler = (e) => {
     e.preventDefault();
-    navigate(query ? `/search/?query=${query}` : '/search');
+    if (query.trim()) {
+      navigate(`/search?query=${query}`);
+    }
   };
 
   return (
-    <Form className="d-flex me-auto" onSubmit={submitHandler}>
-      <InputGroup className="input-group-elegante rounded-pill shadow">
-        <FormControl
-          type="text"
-          name="q"
-          id="q"
+    <motion.div
+      initial={{ width: 200 }}
+      animate={{ width: focused ? 350 : 200 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Paper
+        component="form"
+        onSubmit={submitHandler}
+        sx={{
+          p: '2px 8px',
+          display: 'flex',
+          alignItems: 'center',
+          borderRadius: 5,
+          boxShadow: 3,
+          backgroundColor: '#fff',
+        }}
+        elevation={focused ? 5 : 2}
+      >
+        <InputBase
+          sx={{ ml: 1, flex: 1 }}
+          placeholder="Buscar productos..."
+          inputProps={{ 'aria-label': 'buscar productos' }}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar..."
-          aria-label="Buscar Productos"
-          aria-describedby="button-search"
-          className="border-0"
-          style={{
-            backgroundColor: '#ECF0F1', // Fondo gris claro
-            color: '#2C3E50', // Texto en azul oscuro
-          }}
         />
-        <Button 
-          variant="light" 
-          type="submit" 
-          id="button-search" 
-          className="rounded-pill"
-          style={{
-            backgroundColor: '#1ABC9C', // Turquesa
-            color: '#FFFFFF', // Texto en blanco
-            transition: 'background-color 0.3s',
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#F39C12'} // Cambia a naranja al pasar el mouse
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1ABC9C'} // Vuelve a turquesa al salir
-        >
-          <i className="fas fa-search"></i>
-        </Button>
-      </InputGroup>
-    </Form>
+        <IconButton type="submit" sx={{ p: '10px' }} aria-label="buscar">
+          <SearchIcon />
+        </IconButton>
+      </Paper>
+    </motion.div>
   );
-  
-  
-  
 }

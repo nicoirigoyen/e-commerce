@@ -1,56 +1,63 @@
-import styled from 'styled-components';
-import { Button } from 'react-bootstrap';
+import { Box, Typography, Fab } from '@mui/material';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
-// Estilo del contenedor de productos destacados
-export const ProductContainer = styled.div`
-  display: flex;
-  overflow-x: auto;
-  padding: 10px;
-  gap: 15px;
-  margin-bottom: 40px; 
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
+export const HomeContainer = ({ children }) => (
+  <Box sx={{ p: 2 }}>
+    {children}
+  </Box>
+);
 
-  &::-webkit-scrollbar {
-    height: 8px;
-  }
+export const SectionTitle = ({ children }) => (
+  <Typography variant="h5" fontWeight="bold" mb={2}>
+    {children}
+  </Typography>
+);
 
-  &::-webkit-scrollbar-thumb {
-    background-color: #888;
-    border-radius: 10px;
-  }
+export const ProductContainer = ({ children }) => (
+  <Box
+    sx={{
+      display: 'flex',
+      overflowX: 'auto',
+      gap: 2,
+      pb: 1,
+      mb: 5,
+      scrollSnapType: 'x mandatory',
+      WebkitOverflowScrolling: 'touch',
+      '&::-webkit-scrollbar': {
+        height: 8,
+      },
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: '#888',
+        borderRadius: 10,
+      },
+      '&::-webkit-scrollbar-track': {
+        backgroundColor: '#f1f1f1',
+      },
+    }}
+  >
+    {children}
+  </Box>
+);
 
-  &::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-`;
-
-// Estilo del botón de WhatsApp
-export const WhatsAppButton = styled.a`
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  z-index: 10;
-  border-radius: 50%;
-  background-color: #25d366;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-decoration: none;
-
-  &:hover {
-    background-color: #128c7e;
-  }
-`;
-
-export const HomeContainer = styled.div`
-  padding: 20px;
-`;
-
-export const SectionTitle = styled.h2`
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-`;
+export const WhatsAppButton = () => (
+  <Fab
+    href="https://wa.me/1234567890"
+    target="_blank"
+    rel="noopener noreferrer"
+    color="success"
+    sx={{
+      position: 'fixed',
+      bottom: 30,
+      right: 30,
+      width: 60,
+      height: 60,
+      zIndex: 10,
+      bgcolor: '#25d366',
+      '&:hover': {
+        bgcolor: '#128c7e',
+      },
+    }}
+  >
+    <WhatsAppIcon sx={{ fontSize: 30, color: '#fff' }} />
+  </Fab>
+);

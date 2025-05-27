@@ -1,5 +1,15 @@
 .App {
   text-align: center;
+  min-height: 100vh;
+  /* Fondo degradado animado */
+  background: linear-gradient(-45deg, #667eea, #764ba2, #6b8dd6, #a471b3);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  color: white; /* Texto blanco para contraste */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .App-logo {
@@ -14,19 +24,21 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  /* Ahora transparente para dejar ver fondo animado */
+  background-color: rgba(0, 0, 0, 0.5);
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-
 }
 
 .App-link {
   color: #61dafb;
+  text-decoration: none;
 }
 
 @keyframes App-logo-spin {
@@ -37,6 +49,19 @@
     transform: rotate(360deg);
   }
 }
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 /* Carrusel */
 .featured-carousel {
   max-width: 1200px;
@@ -48,6 +73,7 @@
   justify-content: center;
 }
 
-.swiper-button-next, .swiper-button-prev {
-  color: #000;  /* Cambiar color de las flechas */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #000; /* Cambiar color de las flechas */
 }

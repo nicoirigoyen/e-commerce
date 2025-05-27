@@ -1,21 +1,25 @@
+import React, { useState, useEffect, useReducer, useRef, useContext } from 'react';
 import axios from 'axios';
-import { useContext, useEffect, useReducer, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Card from 'react-bootstrap/Card';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Form from 'react-bootstrap/Form';
-import Badge from 'react-bootstrap/Badge';
-import Button from 'react-bootstrap/Button';
-import Rating from '../components/Rating';
-import { Helmet } from 'react-helmet-async';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import {
+  Box,
+  Grid,
+  Card,
+  CardMedia,
+  Typography,
+  Button,
+  Rating as MuiRating,
+  Select,
+  MenuItem,
+  TextField,
+  Chip,
+} from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-toastify';
+import { Store } from '../Store';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { getError } from '../utils';
-import { Store } from '../Store';
-import FloatingLabel from 'react-bootstrap/FloatingLabel';
-import { toast } from 'react-toastify';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -45,15 +49,13 @@ function ProductScreen() {
   const [selectedImage, setSelectedImage] = useState('');
 
   const navigate = useNavigate();
-  const params = useParams();
-  const { slug } = params;
+  const { slug } = useParams();
 
-  const [{ loading, error, product, loadingCreateReview }, dispatch] =
-    useReducer(reducer, {
-      product: [],
-      loading: true,
-      error: '',
-    });
+  const [{ loading, error, product, loadingCreateReview }, dispatch] = useReducer(reducer, {
+    product: null,
+    loading: true,
+    error: '',
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,6 +63,7 @@ function ProductScreen() {
       try {
         const result = await axios.get(`/api/products/slug/${slug}`);
         dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
+        setSelectedImage(result.data.image); // Imagen principal
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
@@ -76,13 +79,10 @@ function ProductScreen() {
     const quantity = existItem ? existItem.quantity + 1 : 1;
     const { data } = await axios.get(`/api/products/${product._id}`);
     if (data.countInStock < quantity) {
-      window.alert('Producto sin stock');
+      toast.error('Producto sin stock');
       return;
     }
-    ctxDispatch({
-      type: 'CART_ADD_ITEM',
-      payload: { ...product, quantity },
-    });
+    ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...product, quantity } });
     navigate('/cart');
   };
 
@@ -96,187 +96,265 @@ function ProductScreen() {
       const { data } = await axios.post(
         `/api/products/${product._id}/reviews`,
         { rating, comment, name: userInfo.name },
-        {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        }
+        { headers: { Authorization: `Bearer ${userInfo.token}` } }
       );
-
-      dispatch({
-        type: 'CREATE_SUCCESS',
-      });
+      dispatch({ type: 'CREATE_SUCCESS' });
       toast.success('Comentario enviado!');
       product.reviews.unshift(data.review);
       product.numReviews = data.numReviews;
       product.rating = data.rating;
       dispatch({ type: 'REFRESH_PRODUCT', payload: product });
-      window.scrollTo({
-        behavior: 'smooth',
-        top: reviewsRef.current.offsetTop,
-      });
+      window.scrollTo({ behavior: 'smooth', top: reviewsRef.current.offsetTop });
     } catch (error) {
       toast.error(getError(error));
       dispatch({ type: 'CREATE_FAIL' });
     }
   };
 
-  return loading ? (
-    <LoadingBox />
-  ) : error ? (
-    <MessageBox variant="danger">{error}</MessageBox>
-  ) : (
-    <div className="product-screen">
-      <Row>
-        <Col md={6}>
-          <img
-            className="img-large"
-            src={selectedImage || product.image}
-            alt={product.name}
-          ></img>
-        </Col>
-        <Col md={3}>
-          <ListGroup variant="flush">
-            <ListGroup.Item>
-              <Helmet>
-                <title>{product.name}</title>
-              </Helmet>
-              <h1>{product.name}</h1>
-            </ListGroup.Item>
-            <ListGroup.Item>
-              <Rating
-                rating={product.rating}
-                numReviews={product.numReviews}
-              ></Rating>
-            </ListGroup.Item>
-            <ListGroup.Item>Precio: ${product.price}</ListGroup.Item>
-            <ListGroup.Item>
-              <Row xs={1} md={2} className="g-2">
-                {[product.image, ...product.images].map((x) => (
-                  <Col key={x}>
-                    <Card>
-                      <Button
-                        className="thumbnail"
-                        type="button"
-                        variant="light"
-                        onClick={() => setSelectedImage(x)}
-                      >
-                        <Card.Img variant="top" src={x} alt="product" />
-                      </Button>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
-            </ListGroup.Item>
-            <ListGroup.Item>
-              Descripción:
-              <p>{product.description}</p>
-            </ListGroup.Item>
-          </ListGroup>
-        </Col>
-        <Col md={3}>
-          <Card>
-            <Card.Body>
-              <ListGroup variant="flush">
-                <ListGroup.Item>
-                  <Row>
-                    <Col>Precio:</Col>
-                    <Col>${product.price}</Col>
-                  </Row>
-                </ListGroup.Item>
-                <ListGroup.Item>
-                  <Row>
-                    <Col>Estado:</Col>
-                    <Col>
-                      {product.countInStock > 0 ? (
-                        <Badge bg="success">En stock</Badge>
-                      ) : (
-                        <Badge bg="danger">No disponible</Badge>
-                      )}
-                    </Col>
-                  </Row>
-                </ListGroup.Item>
+  if (loading) return <LoadingBox />;
+  if (error) return <MessageBox variant="danger">{error}</MessageBox>;
 
-                {product.countInStock > 0 && (
-                  <ListGroup.Item>
-                    <div className="d-grid">
-                      <Button onClick={addToCartHandler} variant="primary">
-                        Agregar al carrito
-                      </Button>
-                    </div>
-                  </ListGroup.Item>
-                )}
-              </ListGroup>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-      <div className="my-3">
-        <h2 ref={reviewsRef}>Calificación</h2>
-        <div className="mb-3">
-          {product.reviews.length === 0 && (
-            <MessageBox>No hay calificaciones</MessageBox>
-          )}
-        </div>
-        <ListGroup>
-          {product.reviews.map((review) => (
-            <ListGroup.Item key={review._id}>
-              <strong>{review.name}</strong>
-              <Rating rating={review.rating} caption=" "></Rating>
-              <p>{review.createdAt.substring(0, 10)}</p>
-              <p>{review.comment}</p>
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
-        <div className="my-3">
-          {userInfo ? (
-            <form onSubmit={submitHandler}>
-              <h2>Escribe un comentario del producto</h2>
-              <Form.Group className="mb-3" controlId="rating">
-                <Form.Label>Calificación</Form.Label>
-                <Form.Select
-                  aria-label="Rating"
-                  value={rating}
-                  onChange={(e) => setRating(e.target.value)}
-                >
-                  <option value="">Seleccionar...</option>
-                  <option value="1">1- Pobre</option>
-                  <option value="2">2- Malo</option>
-                  <option value="3">3- Bueno</option>
-                  <option value="4">4- Muy bueno</option>
-                  <option value="5">5- Excelente</option>
-                </Form.Select>
-              </Form.Group>
-              <FloatingLabel
-                controlId="floatingTextarea"
-                label="Comentarios"
-                className="mb-3"
+  return (
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, margin: '0 auto' }}>
+      <Grid container spacing={5}>
+        {/* Imagen principal */}
+        <Grid item xs={12} md={6}>
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={selectedImage}
+              src={selectedImage}
+              alt={product.name}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+              style={{
+                width: '100%',
+                borderRadius: 12,
+                boxShadow: '0 12px 24px rgba(0,0,0,0.2)',
+                objectFit: 'contain',
+                maxHeight: 480,
+                userSelect: 'none',
+              }}
+            />
+          </AnimatePresence>
+          {/* Thumbnails */}
+          <Box
+            sx={{
+              display: 'flex',
+              mt: 3,
+              gap: 2,
+              overflowX: 'auto',
+              paddingBottom: 1,
+            }}
+          >
+            {[product.image, ...(product.images || [])].map((img) => (
+              <motion.div
+                key={img}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                style={{
+                  cursor: 'pointer',
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                  boxShadow:
+                    selectedImage === img
+                      ? '0 0 10px 3px #1976d2'
+                      : '0 2px 8px rgba(0,0,0,0.12)',
+                  border: selectedImage === img ? '3px solid #1976d2' : '2px solid transparent',
+                  flexShrink: 0,
+                  width: 90,
+                  height: 90,
+                }}
+                onClick={() => setSelectedImage(img)}
               >
-                <Form.Control
-                  as="textarea"
-                  placeholder="Deja tu comentario aquí"
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
+                <img
+                  src={img}
+                  alt="thumbnail"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block',
+                    borderRadius: 10,
+                  }}
+                  draggable={false}
                 />
-              </FloatingLabel>
+              </motion.div>
+            ))}
+          </Box>
+        </Grid>
 
-              <div className="mb-3">
-                <Button disabled={loadingCreateReview} type="submit">
-                  Enviar
+        {/* Info producto */}
+        <Grid item xs={12} md={3}>
+          <Typography variant="h4" fontWeight="bold" gutterBottom>
+            {product.name}
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <MuiRating value={product.rating} precision={0.5} readOnly size="medium" />
+            <Typography sx={{ ml: 1, color: 'text.secondary', fontWeight: 500 }}>
+              {product.numReviews} reseñas
+            </Typography>
+          </Box>
+          <Typography variant="h5" color="primary" fontWeight="700" gutterBottom>
+            ${product.price.toFixed(2)}
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mt: 2, lineHeight: 1.6 }}>
+            {product.description}
+          </Typography>
+        </Grid>
+
+        {/* Comprar */}
+        <Grid item xs={12} md={3}>
+          <Card
+            sx={{
+              p: 3,
+              boxShadow: '0 8px 20px rgba(25, 118, 210, 0.15)',
+              borderRadius: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              height: '100%',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography variant="h6" fontWeight="600">
+              Precio: ${product.price.toFixed(2)}
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography variant="subtitle1" fontWeight="600">
+                Estado:
+              </Typography>
+              {product.countInStock > 0 ? (
+                <Chip
+                  label="En stock"
+                  color="success"
+                  size="medium"
+                  sx={{ fontWeight: 'bold', px: 2 }}
+                />
+              ) : (
+                <Chip
+                  label="No disponible"
+                  color="error"
+                  size="medium"
+                  sx={{ fontWeight: 'bold', px: 2 }}
+                />
+              )}
+            </Box>
+            {product.countInStock > 0 ? (
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  size="large"
+                  onClick={addToCartHandler}
+                  sx={{ mt: 1, fontWeight: 'bold', borderRadius: 3 }}
+                >
+                  Agregar al carrito
                 </Button>
-                {loadingCreateReview && <LoadingBox></LoadingBox>}
-              </div>
-            </form>
+              </motion.div>
+            ) : (
+              <Button
+                variant="outlined"
+                color="error"
+                fullWidth
+                size="large"
+                disabled
+                sx={{ mt: 1, fontWeight: 'bold', borderRadius: 3 }}
+              >
+                Sin stock
+              </Button>
+            )}
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Reseñas */}
+      <Box sx={{ mt: 6 }}>
+        <Typography variant="h5" fontWeight="700" gutterBottom ref={reviewsRef}>
+          Calificaciones
+        </Typography>
+        {product.reviews.length === 0 ? (
+          <MessageBox>No hay calificaciones</MessageBox>
+        ) : (
+          product.reviews.map((review) => (
+            <Card
+              key={review._id}
+              sx={{
+                mb: 2,
+                p: 2,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                borderRadius: 3,
+              }}
+            >
+              <Typography fontWeight="bold" variant="subtitle1">
+                {review.name}
+              </Typography>
+              <MuiRating value={review.rating} readOnly precision={0.5} size="small" />
+              <Typography variant="caption" color="text.secondary" gutterBottom>
+                {new Date(review.createdAt).toLocaleDateString()}
+              </Typography>
+              <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
+                {review.comment}
+              </Typography>
+            </Card>
+          ))
+        )}
+
+        {/* Formulario para comentar */}
+        <Box sx={{ mt: 4 }}>
+          {userInfo ? (
+            <Box component="form" onSubmit={submitHandler} noValidate>
+              <Typography variant="h6" gutterBottom fontWeight="600">
+                Escribe un comentario del producto
+              </Typography>
+              <Select
+                fullWidth
+                value={rating}
+                onChange={(e) => setRating(Number(e.target.value))}
+                displayEmpty
+                sx={{ mb: 2 }}
+                size="small"
+              >
+                <MenuItem value="" disabled>
+                  Seleccionar calificación
+                </MenuItem>
+                {[1, 2, 3, 4, 5].map((val) => (
+                  <MenuItem key={val} value={val}>
+                    {val} - {['Pobre', 'Malo', 'Bueno', 'Muy bueno', 'Excelente'][val - 1]}
+                  </MenuItem>
+                ))}
+              </Select>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                placeholder="Deja tu comentario aquí"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                sx={{ mb: 2 }}
+                size="small"
+              />
+              <Button
+                variant="contained"
+                type="submit"
+                disabled={loadingCreateReview}
+                sx={{ fontWeight: 'bold', borderRadius: 2 }}
+              >
+                Enviar
+              </Button>
+            </Box>
           ) : (
             <MessageBox>
               Por favor{' '}
-              <Link to={`/signin?redirect=/product/${product.slug}`}>
-                Registrarse
-              </Link>{' '}
+              <Link to={`/signin?redirect=/product/${product.slug}`}>Registrarse</Link>{' '}
               para escribir una reseña
             </MessageBox>
           )}
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 
