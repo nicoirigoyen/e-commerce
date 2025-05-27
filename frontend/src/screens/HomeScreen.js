@@ -18,6 +18,8 @@ import {
   Grid,
   Fab,
   Paper,
+  Fade,
+  Grow,
 } from '@mui/material';
 
 const reducer = (state, action) => {
@@ -59,29 +61,46 @@ const HomeScreen = () => {
         <title>UpSeeBuy</title>
       </Helmet>
 
-      {/* Categorías */}
-      <Paper
-        elevation={3}
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          p: 2,
-          mb: 4,
-          bgcolor: 'background.paper',
-          borderRadius: 2,
-        }}
-      >
-        <CategoryDropdown />
-        {['Garantías', 'Nuevo Ingreso', 'Oferta Flash!', 'Preorden', 'Contacto', 'Inicio'].map((text) => (
-          <Button key={text} variant="outlined" color="primary">
-            {text}
-          </Button>
-        ))}
-      </Paper>
+      {/* Categorías con Fade */}
+      <Fade in timeout={800}>
+        <Paper
+          elevation={3}
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            p: 2,
+            mb: 4,
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+          }}
+        >
+          <CategoryDropdown />
+          {['Garantías', 'Nuevo Ingreso', 'Oferta Flash!', 'Preorden', 'Contacto', 'Inicio'].map((text) => (
+            <Button
+              key={text}
+              variant="outlined"
+              color="primary"
+              sx={{
+                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                  boxShadow: 4,
+                },
+              }}
+            >
+              {text}
+            </Button>
+          ))}
+        </Paper>
+      </Fade>
 
-      {/* Destacados */}
-      <FeaturedSection />
+      {/* Destacados con Fade */}
+      <Fade in timeout={1000}>
+        <Box>
+          <FeaturedSection />
+        </Box>
+      </Fade>
 
       {/* Productos */}
       <Box sx={{ mt: 6 }}>
@@ -94,16 +113,40 @@ const HomeScreen = () => {
           <MessageBox variant="danger">{error}</MessageBox>
         ) : (
           <Grid container spacing={3}>
-            {products.map((product) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={product.slug}>
-                <Product product={product} />
+            {products.map((product, index) => (
+              <Grid
+                item
+                xs={12}
+                sm={6}
+                md={4}
+                lg={3}
+                key={product.slug}
+                // Animación Grow con delay según el índice
+              >
+                <Grow in timeout={500 + index * 200}>
+                  <Box
+                    sx={{
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      '&:hover': {
+                        transform: 'scale(1.05)',
+                        boxShadow: 6,
+                      },
+                      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Product product={product} />
+                  </Box>
+                </Grow>
               </Grid>
             ))}
           </Grid>
         )}
       </Box>
 
-      {/* WhatsApp */}
+      {/* WhatsApp flotante con animación pulsante */}
       <Fab
         color="success"
         aria-label="whatsapp"
@@ -112,6 +155,12 @@ const HomeScreen = () => {
           bottom: 24,
           right: 24,
           zIndex: 1000,
+          animation: 'pulse 2000ms infinite',
+          '@keyframes pulse': {
+            '0%': { transform: 'scale(1)' },
+            '50%': { transform: 'scale(1.1)' },
+            '100%': { transform: 'scale(1)' },
+          },
         }}
         href="https://wa.me/1234567890"
         target="_blank"
