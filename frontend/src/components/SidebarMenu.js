@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Drawer,
   Box,
@@ -21,9 +21,10 @@ export default function SidebarMenu({ categories, open, onClose }) {
   const [tabIndex, setTabIndex] = useState(0);
   const [query, setQuery] = useState('');
   const [fadeIn, setFadeIn] = useState(true);
-
   const navigate = useNavigate();
+  const debounceTimer = useRef(null);
 
+  // Manejo de cambio de tab con fade sincronizado
   const handleTabChange = (event, newValue) => {
     setFadeIn(false);
     setTimeout(() => {
@@ -32,10 +33,23 @@ export default function SidebarMenu({ categories, open, onClose }) {
     }, 200);
   };
 
+  // Debounce para búsqueda: navega solo después de 500ms sin escribir
+  useEffect(() => {
+    if (!query.trim()) return;
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      navigate(`/search/?query=${encodeURIComponent(query.trim())}`);
+      onClose();
+    }, 500);
+    return () => clearTimeout(debounceTimer.current);
+  }, [query, navigate, onClose]);
+
+  // Handler para submit por si presionan Enter
   const submitHandler = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      navigate(`/search/?query=${query}`);
+      clearTimeout(debounceTimer.current);
+      navigate(`/search/?query=${encodeURIComponent(query.trim())}`);
       onClose();
     }
   };
@@ -56,7 +70,7 @@ export default function SidebarMenu({ categories, open, onClose }) {
       justifyContent: 'center',
     },
     nuevo: {
-      bgcolor: 'primary.main',
+      bgcolor: 'secondary.main',
       color: 'white',
       ml: 1,
       px: 1,
@@ -108,14 +122,16 @@ export default function SidebarMenu({ categories, open, onClose }) {
         sx: {
           width: 320,
           p: 2,
-          bgcolor: 'background.paper',
+          bgcolor: '#121212', // Color de fondo oscuro moderno
+          color: 'white',
           fontFamily: "'Inter', sans-serif",
-          boxShadow: 4,
+          boxShadow: 6,
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
         },
       }}
+      aria-label="Menú lateral"
     >
       {/* HEADER con nombre y botón cerrar */}
       <Box
@@ -130,7 +146,7 @@ export default function SidebarMenu({ categories, open, onClose }) {
           alignItems: 'center',
           borderRadius: 1,
           mb: 2,
-          boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
           userSelect: 'none',
         }}
       >
@@ -148,7 +164,13 @@ export default function SidebarMenu({ categories, open, onClose }) {
       </Box>
 
       {/* Buscador */}
-      <Box component="form" onSubmit={submitHandler} mb={3} sx={{ position: 'relative' }}>
+      <Box
+        component="form"
+        onSubmit={submitHandler}
+        mb={3}
+        sx={{ position: 'relative' }}
+        aria-label="Formulario de búsqueda de productos"
+      >
         <TextField
           fullWidth
           size="small"
@@ -156,11 +178,12 @@ export default function SidebarMenu({ categories, open, onClose }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           sx={{
-            bgcolor: 'background.default',
+            bgcolor: 'background.paper',
             borderRadius: 1,
             '& .MuiInputBase-root': {
-              fontSize: '0.9rem',
+              fontSize: '0.95rem',
               px: 1.5,
+              color: 'text.primary',
             },
           }}
           InputProps={{
@@ -172,6 +195,9 @@ export default function SidebarMenu({ categories, open, onClose }) {
               </InputAdornment>
             ),
           }}
+          inputProps={{
+            'aria-label': 'Buscar producto',
+          }}
         />
       </Box>
 
@@ -180,10 +206,11 @@ export default function SidebarMenu({ categories, open, onClose }) {
         value={tabIndex}
         onChange={handleTabChange}
         variant="fullWidth"
+        aria-label="Selección de menú o categorías"
         sx={{
           mb: 2,
           '& .MuiTabs-indicator': {
-            bgcolor: 'primary.main',
+            bgcolor: 'secondary.main',
             height: 3,
             borderRadius: 2,
           },
@@ -191,68 +218,137 @@ export default function SidebarMenu({ categories, open, onClose }) {
             fontWeight: 700,
             fontSize: '0.95rem',
             textTransform: 'uppercase',
+            color: 'text.secondary',
           },
           '& .Mui-selected': {
-            color: 'primary.main',
-          },
-          '& .MuiTab-root:not(.Mui-selected)': {
-            color: 'text.secondary',
+            color: 'secondary.main',
           },
         }}
       >
-        <Tab label="MENU" />
-        <Tab label="CATEGORÍAS" />
+        <Tab label="MENÚ" id="tab-menu" aria-controls="tabpanel-menu" />
+        <Tab label="CATEGORÍAS" id="tab-categories" aria-controls="tabpanel-categories" />
       </Tabs>
 
       {/* Contenido con fade */}
-      <Fade in={fadeIn} timeout={300}>
-        <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
+      <Fade
+        in={fadeIn}
+        timeout={300}
+        style={{ transitionDelay: fadeIn ? '0ms' : '200ms' }}
+        unmountOnExit
+      >
+        <Box
+          sx={{ flexGrow: 1, overflowY: 'auto' }}
+          role="tabpanel"
+          id={tabIndex === 0 ? 'tabpanel-menu' : 'tabpanel-categories'}
+          aria-labelledby={tabIndex === 0 ? 'tab-menu' : 'tab-categories'}
+        >
           {tabIndex === 0 ? (
             <List disablePadding>
-              {/* Items con texto y badge */}
-              <ListItem button component={Link} to="/garantias" onClick={onClose} sx={{ px: 0, py: 1.5 }}>
+              <ListItem
+                button
+                component={Link}
+                to="/garantias"
+                onClick={onClose}
+                sx={{ px: 0, py: 1.5 }}
+                aria-label="Garantías importante"
+              >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography variant="body1" fontWeight={700} color="text.primary" sx={{ flexShrink: 0 }}>
+                  <Typography
+                    variant="body1"
+                    fontWeight={700}
+                    color="text.primary"
+                    sx={{ flexShrink: 0 }}
+                  >
                     GARANTÍAS
                   </Typography>
                   <Badge sx={badgeStyles.importante}>IMPORTANTE!</Badge>
                 </Box>
               </ListItem>
 
-              <ListItem button component={Link} to="/nuevo" onClick={onClose} sx={{ px: 0, py: 1.5 }}>
+              <ListItem
+                button
+                component={Link}
+                to="/nuevo"
+                onClick={onClose}
+                sx={{ px: 0, py: 1.5 }}
+                aria-label="Nuevo ingreso"
+              >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography variant="body1" fontWeight={700} color="text.primary" sx={{ flexShrink: 0 }}>
+                  <Typography
+                    variant="body1"
+                    fontWeight={700}
+                    color="text.primary"
+                    sx={{ flexShrink: 0 }}
+                  >
                     NUEVO INGRESO!
                   </Typography>
                   <Badge sx={badgeStyles.nuevo}>NEW!</Badge>
                 </Box>
               </ListItem>
 
-              <ListItem button component={Link} to="/oferta" onClick={onClose} sx={{ px: 0, py: 1.5 }}>
+              <ListItem
+                button
+                component={Link}
+                to="/oferta"
+                onClick={onClose}
+                sx={{ px: 0, py: 1.5 }}
+                aria-label="Oferta flash 24 horas"
+              >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography variant="body1" fontWeight={700} color="text.primary" sx={{ flexShrink: 0 }}>
+                  <Typography
+                    variant="body1"
+                    fontWeight={700}
+                    color="text.primary"
+                    sx={{ flexShrink: 0 }}
+                  >
                     OFERTA FLASH!
                   </Typography>
                   <Badge sx={badgeStyles.oferta}>24HS</Badge>
                 </Box>
               </ListItem>
 
-              <ListItem button component={Link} to="/preorden" onClick={onClose} sx={{ px: 0, py: 1.5 }}>
+              <ListItem
+                button
+                component={Link}
+                to="/preorden"
+                onClick={onClose}
+                sx={{ px: 0, py: 1.5 }}
+                aria-label="Preorden nuevo"
+              >
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Typography variant="body1" fontWeight={700} color="text.primary" sx={{ flexShrink: 0 }}>
+                  <Typography
+                    variant="body1"
+                    fontWeight={700}
+                    color="text.primary"
+                    sx={{ flexShrink: 0 }}
+                  >
                     PREORDEN
                   </Typography>
                   <Badge sx={badgeStyles.preorden}>NEW</Badge>
                 </Box>
               </ListItem>
 
-              <ListItem button component={Link} to="/contacto" onClick={onClose} sx={{ px: 0, py: 1.5 }}>
+              <ListItem
+                button
+                component={Link}
+                to="/contacto"
+                onClick={onClose}
+                sx={{ px: 0, py: 1.5 }}
+                aria-label="Contacto"
+              >
                 <Typography variant="body1" color="text.primary">
                   CONTACTO
                 </Typography>
               </ListItem>
 
-              <ListItem button component={Link} to="/" onClick={onClose} sx={{ px: 0, py: 1.5 }}>
+              <ListItem
+                button
+                component={Link}
+                to="/"
+                onClick={onClose}
+                sx={{ px: 0, py: 1.5 }}
+                aria-label="Inicio"
+              >
                 <Typography variant="body1" color="text.primary">
                   INICIO
                 </Typography>
@@ -265,22 +361,22 @@ export default function SidebarMenu({ categories, open, onClose }) {
                   button
                   key={cat}
                   component={Link}
-                  to={`/search?category=${cat}`}
+                  to={`/search?category=${encodeURIComponent(cat)}`}
                   onClick={onClose}
                   sx={{ px: 0, py: 1.5 }}
+                  aria-label={`Categoría ${cat}`}
                 >
                   <Box
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'space-between',
                       width: '100%',
+                      fontWeight: 600,
+                      color: 'text.primary',
+                      textTransform: 'capitalize',
                     }}
                   >
-                    <Typography variant="body1" color="text.primary">
-                      {cat}
-                    </Typography>
-                    <ChevronRightIcon color="action" />
+                    {cat}
                   </Box>
                 </ListItem>
               ))}

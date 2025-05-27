@@ -40,72 +40,75 @@ function Product({ product }) {
 
   return (
     <Card
-      sx={{
-        maxWidth: 320,
-        display: 'flex',
-        flexDirection: 'column',
-        borderRadius: 3,
-        boxShadow: 3,
-        transition: 'transform 0.3s ease',
-        '&:hover': {
-          transform: 'scale(1.05)',
-          boxShadow: 6,
-        },
-      }}
-      elevation={4}
-    >
-      <Link to={`/product/${product.slug}`} style={{ textDecoration: 'none' }}>
-        <CardMedia
-          component="img"
-          height="240"
-          image={product.image}
-          alt={product.name}
-          sx={{ objectFit: 'contain', bgcolor: '#fafafa' }}
-        />
-      </Link>
-      <CardContent sx={{ flexGrow: 1 }}>
-        <Link to={`/product/${product.slug}`} style={{ textDecoration: 'none' }}>
-          <Typography variant="h6" component="div" gutterBottom sx={{ color: '#333', fontWeight: '700' }}>
-            {product.name}
-          </Typography>
-        </Link>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          {renderRating(product.rating)}
-          <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-            ({product.numReviews})
-          </Typography>
-        </Box>
-        <Typography variant="h6" sx={{ color: 'success.main', fontWeight: 'bold' }}>
-          ${product.price}
-        </Typography>
-      </CardContent>
-      <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
-        {product.countInStock === 0 ? (
-          <Tooltip title="Producto agotado">
-            <span>
-              <Button variant="contained" color="error" disabled startIcon={<ShoppingCartIcon />} fullWidth>
-                Agotado
-              </Button>
-            </span>
-          </Tooltip>
-        ) : (
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<ShoppingCartIcon />}
-            fullWidth
-            onClick={() => addToCartHandler(product)}
-            sx={{
-              textTransform: 'none',
-              fontWeight: '700',
-              '&:hover': { backgroundColor: 'primary.dark' },
-            }}
-          >
-            Agregar al carrito
+  sx={{
+    maxWidth: 320,
+    display: 'flex',
+    flexDirection: 'column',
+    borderRadius: 3,
+    bgcolor: 'rgba(255, 255, 255, 0.12)', // fondo translúcido
+    backdropFilter: 'blur(8px)',           // blur para efecto cristal
+    boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+    '&:hover': {
+      transform: 'scale(1.05)',
+      boxShadow: '0 12px 32px rgba(0,0,0,0.25)',
+    },
+  }}
+  elevation={0} // sombra personalizada con boxShadow
+>
+  <Link to={`/product/${product.slug}`} style={{ textDecoration: 'none' }}>
+    <CardMedia
+      component="img"
+      height="240"
+      image={product.image}
+      alt={product.name}
+      sx={{ objectFit: 'contain', bgcolor: 'rgba(250,250,250,0.4)' }} // fondo suave
+    />
+  </Link>
+  <CardContent sx={{ flexGrow: 1 }}>
+    <Link to={`/product/${product.slug}`} style={{ textDecoration: 'none' }}>
+      <Typography variant="h6" component="div" gutterBottom sx={{ color: '#f0f0f0', fontWeight: '700' }}>
+        {product.name}
+      </Typography>
+    </Link>
+    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+      {renderRating(product.rating)}
+      <Typography variant="body2" sx={{ ml: 1, color: '#ddd' }}>
+        ({product.numReviews})
+      </Typography>
+    </Box>
+    <Typography variant="h6" sx={{ color: '#81c784', fontWeight: 'bold' }}>
+      ${product.price}
+    </Typography>
+  </CardContent>
+  <CardActions sx={{ justifyContent: 'center', pb: 2 }}>
+    {product.countInStock === 0 ? (
+      <Tooltip title="Producto agotado">
+        <span>
+          <Button variant="contained" color="error" disabled startIcon={<ShoppingCartIcon />} fullWidth>
+            Agotado
           </Button>
-        )}
-      </CardActions>
-    </Card>
+        </span>
+      </Tooltip>
+    ) : (
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={<ShoppingCartIcon />}
+        fullWidth
+        onClick={() => addToCartHandler(product)}
+        sx={{
+          textTransform: 'none',
+          fontWeight: '700',
+          '&:hover': { backgroundColor: 'primary.dark' },
+        }}
+      >
+        Agregar al carrito
+      </Button>
+    )}
+  </CardActions>
+</Card>
+
   );
 }
 

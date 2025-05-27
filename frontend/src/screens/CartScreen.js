@@ -1,35 +1,26 @@
-import { useContext } from 'react';
+import React, { useContext } from 'react';
+
 import { Store } from '../Store';
 import { Helmet } from 'react-helmet-async';
 import {
   Box,
-  Grid,
   Typography,
-  IconButton,
-  Button,
+  Grid,
   Card,
+  CardContent,
+  Button,
+  IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
   Divider,
-  useMediaQuery,
-  useTheme,
+  Slide,
 } from '@mui/material';
+import { AddCircleOutline, RemoveCircleOutline, Delete } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import MessageBox from '../components/MessageBox';
-import { motion } from 'framer-motion';
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
 
 export default function CartScreen() {
   const navigate = useNavigate();
@@ -38,21 +29,16 @@ export default function CartScreen() {
     cart: { cartItems },
   } = state;
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   const updateCartHandler = async (item, quantity) => {
-    if (quantity < 1) return;
+    if (quantity < 1) return; // no permitir cantidad < 1
     const { data } = await axios.get(`/api/products/${item._id}`);
     if (data.countInStock < quantity) {
-      window.alert('Sorry. Product is out of stock');
+      alert('Lo siento, producto sin stock suficiente');
       return;
     }
-    ctxDispatch({
-      type: 'CART_ADD_ITEM',
-      payload: { ...item, quantity },
-    });
+    ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
   };
+
   const removeItemHandler = (item) => {
     ctxDispatch({ type: 'CART_REMOVE_ITEM', payload: item });
   };
@@ -61,204 +47,216 @@ export default function CartScreen() {
     navigate('/signin?redirect=/shipping');
   };
 
+  const totalItems = cartItems.reduce((a, c) => a + c.quantity, 0);
+  const totalPrice = cartItems.reduce((a, c) => a + c.price * c.quantity, 0);
+
   return (
-    <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1200, margin: 'auto' }}>
-    <Helmet>
+    <Box sx={{ p: { xs: 2, md: 4 } }}>
+      <Helmet>
         <title>Carrito de compras</title>
-    </Helmet>
-    <Typography
-      variant="h4"
-      fontWeight="700"
-      mb={3}
-      textAlign="center"
-      sx={{
-        fontFamily: "'Poppins', sans-serif", // letra moderna, fácil de usar con Google Fonts
-        animation: `${fadeIn} 0.8s ease forwards`,
-        color: '#1976d2', // azul moderno, cambia si querés
-      }}
-    >
-      Carrito de compras
-    </Typography>
+      </Helmet>
 
-      <Grid container spacing={4}>
-        {/* Lista de productos */}
-        <Grid item xs={12} md={8}>
-          {cartItems.length === 0 ? (
-            <MessageBox>
-              Carrito vacío. <Link to="/">Ir a comprar</Link>
-            </MessageBox>
-          ) : (
-            <Box
-              component={motion.div}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {cartItems.map((item) => (
-                <Card
+      <Typography
+        variant="h4"
+        fontWeight="700"
+        mb={4}
+        textAlign="center"
+        sx={{
+          fontFamily: "'Poppins', sans-serif",
+          color: '#1976d2',
+          animation: 'fadeInDown 0.8s ease forwards',
+          '@keyframes fadeInDown': {
+            '0%': { opacity: 0, transform: 'translateY(-20px)' },
+            '100%': { opacity: 1, transform: 'translateY(0)' },
+          },
+        }}
+      >
+        Carrito de compras
+      </Typography>
+
+      {cartItems.length === 0 ? (
+        <Typography variant="h6" textAlign="center" color="text.secondary">
+          Carrito vacío.{' '}
+          <Link to="/" style={{ color: '#1976d2', textDecoration: 'none', fontWeight: '600' }}>
+            Ir a comprar
+          </Link>
+        </Typography>
+      ) : (
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={8}>
+            <List sx={{ bgcolor: 'transparent', p: 0 }}>
+              {cartItems.map((item, index) => (
+                <Slide
+                  direction="up"
+                  in={true}
+                  mountOnEnter
+                  unmountOnExit
+                  timeout={300 + index * 100}
                   key={item._id}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    mb: 2,
-                    p: 2,
-                    gap: 2,
-                    boxShadow: 3,
-                    borderRadius: 2,
-                    ':hover': { boxShadow: 6 },
-                  }}
-                  component={motion.div}
-                  whileHover={{ scale: 1.02 }}
                 >
-                  <Box
-                    component={Link}
-                    to={`/product/${item.slug}`}
-                    sx={{
-                      width: 90,
-                      height: 90,
-                      flexShrink: 0,
-                      borderRadius: 2,
-                      overflow: 'hidden',
-                      display: 'block',
-                    }}
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        borderRadius: '8px',
-                      }}
-                    />
-                  </Box>
-
-                  <Box
-                    sx={{
-                      flexGrow: 1,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      minWidth: 0,
-                    }}
-                  >
-                    <Typography
-                      component={Link}
-                      to={`/product/${item.slug}`}
-                      variant="subtitle1"
-                      fontWeight="600"
-                      color="text.primary"
-                      sx={{
-                        textDecoration: 'none',
-                        '&:hover': { color: theme.palette.primary.main },
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      {item.name}
-                    </Typography>
-
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        mt: 1,
-                        gap: 1,
-                      }}
-                    >
+                  <ListItem
+                    secondaryAction={
                       <IconButton
-                        aria-label="reduce quantity"
-                        onClick={() => updateCartHandler(item, item.quantity - 1)}
-                        disabled={item.quantity === 1}
-                        size={isMobile ? 'small' : 'medium'}
-                      >
-                        <RemoveCircleOutlineIcon />
-                      </IconButton>
-                      <Typography variant="body1" sx={{ minWidth: 24, textAlign: 'center' }}>
-                        {item.quantity}
-                      </Typography>
-                      <IconButton
-                        aria-label="increase quantity"
-                        onClick={() => updateCartHandler(item, item.quantity + 1)}
-                        disabled={item.quantity === item.countInStock}
-                        size={isMobile ? 'small' : 'medium'}
-                      >
-                        <AddCircleOutlineIcon />
-                      </IconButton>
-
-                      <Box sx={{ flexGrow: 1 }} />
-                      <Typography
-                        variant="subtitle1"
-                        fontWeight="bold"
-                        sx={{ minWidth: 75, textAlign: 'right' }}
-                      >
-                        ${item.price.toFixed(2)}
-                      </Typography>
-
-                      <IconButton
-                        aria-label="remove item"
+                        edge="end"
                         onClick={() => removeItemHandler(item)}
                         color="error"
-                        size={isMobile ? 'small' : 'medium'}
+                        aria-label="delete"
                       >
-                        <DeleteOutlineIcon />
+                        <Delete />
                       </IconButton>
-                    </Box>
-                  </Box>
-                </Card>
+                    }
+                    alignItems="center"
+                    sx={{
+                      borderRadius: 2,
+                      mb: 2,
+                      bgcolor: 'rgba(255, 255, 255, 0.1)', // fondo semitransparente
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      backdropFilter: 'blur(8px)', // efecto blur para “flotante”
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
+                        transform: 'scale(1.03)',
+                        bgcolor: 'rgba(255, 255, 255, 0.15)',
+                      },
+                    }}
+                  >
+                    <ListItemAvatar>
+                      <Avatar
+                        variant="rounded"
+                        src={item.image}
+                        alt={item.name}
+                        sx={{ width: 96, height: 96, mr: 2 }}
+                      />
+                    </ListItemAvatar>
+
+                    <ListItemText
+                      primary={
+                        <Link
+                          to={`/product/${item.slug}`}
+                          style={{
+                            textDecoration: 'none',
+                            color: '#1976d2',
+                            fontWeight: '700',
+                            fontSize: '1.1rem',
+                            transition: 'color 0.3s ease',
+                          }}
+                          onMouseEnter={(e) => (e.target.style.color = '#115293')}
+                          onMouseLeave={(e) => (e.target.style.color = '#1976d2')}
+                        >
+                          {item.name}
+                        </Link>
+                      }
+                      secondary={
+                        <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => updateCartHandler(item, item.quantity - 1)}
+                            disabled={item.quantity === 1}
+                          >
+                            <RemoveCircleOutline fontSize="small" />
+                          </IconButton>
+
+                          <Typography variant="body1" sx={{ minWidth: 24, textAlign: 'center' }}>
+                            {item.quantity}
+                          </Typography>
+
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => updateCartHandler(item, item.quantity + 1)}
+                            disabled={item.quantity === item.countInStock}
+                          >
+                            <AddCircleOutline fontSize="small" />
+                          </IconButton>
+
+                          <Typography
+                            variant="subtitle1"
+                            fontWeight="600"
+                            sx={{ marginLeft: 'auto', fontSize: '1.1rem' }}
+                          >
+                            ${item.price.toFixed(2)}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                </Slide>
               ))}
-            </Box>
-          )}
-        </Grid>
+            </List>
+          </Grid>
 
-        {/* Resumen y botones */}
+
+
         <Grid item xs={12} md={4}>
-          <Card
-            sx={{
-              p: 3,
-              position: 'sticky',
-              top: 80,
-              boxShadow: 4,
-              borderRadius: 3,
-              backgroundColor: 'background.paper',
-            }}
-            component={motion.div}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-          >
-            <Typography variant="h6" fontWeight="bold" mb={2} textAlign="right">
-              Subtotal ({cartItems.reduce((a, c) => a + c.quantity, 0)} items):
-              <Box component="span" color={theme.palette.primary.main} ml={1}>
-                ${cartItems.reduce((a, c) => a + c.price * c.quantity, 0).toFixed(2)}
-              </Box>
-            </Typography>
-            <Divider sx={{ mb: 3 }} />
+  <Card
+    sx={{
+      p: 2,
+      boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+      borderRadius: 3,
+      bgcolor: 'rgba(255, 255, 255, 0.12)', // blanco translúcido
+      backdropFilter: 'blur(10px)',         // blur para efecto cristal
+      border: '1px solid rgba(255, 255, 255, 0.18)', // borde difuso
+      maxWidth: 360,
+      margin: 'auto',
+      color: 'white',                       // texto blanco para contraste
+      height: 'auto',
+    }}
+  >
+    <CardContent>
+      <Typography
+        variant="h6"
+        fontWeight={700}
+        gutterBottom
+        textAlign="right"
+        sx={{ letterSpacing: '0.03em', color: 'white' }}
+      >
+        Subtotal ({totalItems} {totalItems === 1 ? 'item' : 'items'}) :{' '}
+        <Box
+          component="span"
+          sx={{
+            color: '#90caf9', // azul claro para destacar
+            fontSize: '1.3rem',
+            fontWeight: 900,
+            ml: 1,
+            fontFamily: '"Roboto Mono", monospace',
+          }}
+        >
+          ${totalPrice.toFixed(2)}
+        </Box>
+      </Typography>
 
-            <Button
-              variant="contained"
-              size="large"
-              fullWidth
-              onClick={checkoutHandler}
-              disabled={cartItems.length === 0}
-              sx={{ mb: 2 }}
-            >
-              Ir a pagar
-            </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              fullWidth
-              onClick={checkoutHandler}
-              disabled={cartItems.length === 0}
-            >
-              Transferencia / Efectivo
-            </Button>
-          </Card>
+      <Button
+        fullWidth
+        variant="contained"
+        color="primary"
+        size="medium"
+        onClick={checkoutHandler}
+        disabled={cartItems.length === 0}
+        sx={{
+          mt: 3,
+          textTransform: 'none',
+          fontWeight: 700,
+          borderRadius: 2,
+          boxShadow: '0 4px 15px rgb(25 118 210 / 0.7)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            backgroundColor: '#115293',
+            boxShadow: '0 6px 20px rgb(17 82 147 / 0.8)',
+            transform: 'scale(1.05)',
+          },
+        }}
+      >
+        Ir a pagar
+      </Button>
+    </CardContent>
+  </Card>
+</Grid>
+
+
+
         </Grid>
-      </Grid>
+      )}
     </Box>
   );
 }
