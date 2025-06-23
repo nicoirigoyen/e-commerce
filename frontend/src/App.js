@@ -42,7 +42,8 @@ import OrderListScreen from './screens/OrderListScreen';
 import UserListScreen from './screens/UserListScreen';
 import UserEditScreen from './screens/UserEditScreen';
 import MapScreen from './screens/MapScreen';
-import SidebarMenu from './components/SidebarMenu';
+import FeaturedItemCreateScreen from './screens/FeaturedItemCreateScreen';
+import logo from './logo.svg'; //logo
 
 function App() {
   const { state, dispatch: ctxDispatch } = useContext(Store);
@@ -84,12 +85,12 @@ function App() {
   return (
     <BrowserRouter>
       <Box
-        className={fullBox ? 'site-container d-flex flex-column full-box' : 'site-container d-flex flex-column'}
         sx={{
           minHeight: '100vh',
-          background: 'linear-gradient(-45deg, #667eea, #764ba2, #6b8dd6, #a471b3)',
-          backgroundSize: '400% 400%',
-          animation: 'gradientBG 15s ease infinite',
+          background:
+            'linear-gradient(-45deg, #152238, #1C2E48, #284266, #1C2E48, #152238)',
+          backgroundSize: '600% 600%',
+          animation: 'gradientBG 35s ease infinite',
           color: 'white',
           display: 'flex',
           flexDirection: 'column',
@@ -97,37 +98,91 @@ function App() {
       >
         <ToastContainer position="bottom-center" limit={1} />
 
-        <AppBar position="static" sx={{ backgroundColor: 'rgba(0,0,0,0.7)' }}>
-          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {/* Izquierda: menú + logo */}
-            <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-              <IconButton edge="start" color="inherit" aria-label="menu" onClick={() => setSidebarIsOpen(true)}>
-                <MenuIcon />
-              </IconButton>
+        <AppBar position="static" sx={{ backgroundColor: '#1F2E4A' }}>
+          <Toolbar
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+          <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={() => setSidebarIsOpen(true)}
+            >
+              <MenuIcon />
+            </IconButton>
+
+            <Box
+              component={Link}
+              to="/"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                textDecoration: 'none',
+                ml: 1
+              }}
+            >
+             <Box
+                component="img"
+                src={logo}
+                alt=""
+                sx={{
+                  height: 40,
+                  width: 'auto',
+                  transition: 'transform 0.3s ease',
+                  filter: 'brightness(0) saturate(100%) invert(24%) sepia(85%) saturate(5479%) hue-rotate(355deg) brightness(95%) contrast(106%)',
+                  '&:hover': {
+                    transform: 'scale(1.2)',
+                  },
+                }}
+              />
               <Typography
                 variant="h6"
-                component={Link}
-                to="/"
-                sx={{ color: 'inherit', textDecoration: 'none', ml: 1 }}
+                sx={{
+                  ml: 1,
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: '#D12B19',
+                }}
               >
-                Ecommerce
+                <Box component="span" sx={{ color: '#D12B19' }}>Ni</Box>
+                <Box component="span" sx={{ color: 'white', ml: 0.5 }}>Tecno</Box>
               </Typography>
             </Box>
+          </Box>
 
-            {/* Centro: SearchBox */}
+
+
+
             <Box sx={{ flex: 2, display: 'flex', justifyContent: 'center' }}>
               <SearchBox />
             </Box>
 
-            {/* Derecha: carrito + usuario/admin */}
-            <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'flex-end', gap: 2 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                flex: 1,
+                justifyContent: 'flex-end',
+                gap: 2,
+              }}
+            >
               <Button color="inherit" component={Link} to="/cart" sx={{ position: 'relative' }}>
                 Carrito
                 {cart.cartItems.length > 0 && (
                   <Badge
                     badgeContent={cart.cartItems.reduce((a, c) => a + c.quantity, 0)}
-                    color="secondary"
-                    sx={{ position: 'absolute', top: 0, right: -10 }}
+                    sx={{
+                      '& .MuiBadge-badge': {
+                        backgroundColor: '#25D366',
+                        color: 'white',
+                      },
+                    }}
                   />
                 )}
               </Button>
@@ -137,34 +192,78 @@ function App() {
                     {userInfo.name}
                   </Button>
                   <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-                    <MenuItem component={Link} to="/profile">Mi Perfil</MenuItem>
-                    <MenuItem component={Link} to="/orderhistory">Pedidos</MenuItem>
+                    <MenuItem
+                      component={Link}
+                      to="/profile"
+                      sx={{
+                        '&:hover': { backgroundColor: '#6B8DD6', color: '#FFFFFF' },
+                      }}
+                    >
+                      Mi Perfil
+                    </MenuItem>
+                    <MenuItem
+                      component={Link}
+                      to="/orderhistory"
+                      sx={{
+                        '&:hover': { backgroundColor: '#6B8DD6', color: '#FFFFFF' },
+                      }}
+                    >
+                      Pedidos
+                    </MenuItem>
+                    {userInfo.isAdmin && (
+                      <>
+                        <MenuItem disabled>--- Admin ---</MenuItem>
+                        <MenuItem component={Link} to="/admin/dashboard">
+                          Panel de usuario
+                        </MenuItem>
+                        <MenuItem component={Link} to="/admin/products">
+                          Productos
+                        </MenuItem>
+                        <MenuItem component={Link} to="/admin/featured">
+                          Featured
+                        </MenuItem>
+                        <MenuItem component={Link} to="/admin/orders">
+                          Pedidos
+                        </MenuItem>
+                        <MenuItem component={Link} to="/admin/users">
+                          Usuarios
+                        </MenuItem>
+                      </>
+                    )}
                     <MenuItem onClick={signoutHandler}>Salir</MenuItem>
                   </Menu>
-                  {userInfo.isAdmin && (
-                    <>
-                      <Button color="inherit" onClick={handleMenu}>Admin</Button>
-                      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-                        <MenuItem component={Link} to="/admin/dashboard">Panel de usuario</MenuItem>
-                        <MenuItem component={Link} to="/admin/products">Productos</MenuItem>
-                        <MenuItem component={Link} to="/admin/orders">Pedidos</MenuItem>
-                        <MenuItem component={Link} to="/admin/users">Usuarios</MenuItem>
-                      </Menu>
-                    </>
-                  )}
                 </>
               ) : (
-                <Button color="inherit" component={Link} to="/signin">Ingresar</Button>
+                <Button color="inherit" component={Link} to="/signin">
+                  Ingresar
+                </Button>
               )}
             </Box>
           </Toolbar>
         </AppBar>
 
-        <Drawer anchor="left" open={sidebarIsOpen} onClose={() => setSidebarIsOpen(false)}>
-          <Box role="presentation" onClick={() => setSidebarIsOpen(false)} onKeyDown={() => setSidebarIsOpen(false)}>
+        <Drawer
+          anchor="left"
+          open={sidebarIsOpen}
+          onClose={() => setSidebarIsOpen(false)}
+        >
+          <Box
+            role="presentation"
+            onClick={() => setSidebarIsOpen(false)}
+            onKeyDown={() => setSidebarIsOpen(false)}
+            sx={{ width: 250 }}
+          >
             <List>
               {categories.map((category) => (
-                <ListItem button key={category} component={Link} to={`/search?category=${category}`}>
+                <ListItem
+                  button
+                  key={category}
+                  component={Link}
+                  to={`/search?category=${category}`}
+                  sx={{
+                    '&:hover': { backgroundColor: '#6B8DD6', color: '#FFFFFF' },
+                  }}
+                >
                   <ListItemText primary={category} />
                 </ListItem>
               ))}
@@ -180,26 +279,116 @@ function App() {
               <Route path="/search" element={<SearchScreen />} />
               <Route path="/signin" element={<SigninScreen />} />
               <Route path="/signup" element={<SignupScreen />} />
-              <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
-              <Route path="/map" element={<ProtectedRoute><MapScreen /></ProtectedRoute>} />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfileScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/map"
+                element={
+                  <ProtectedRoute>
+                    <MapScreen />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/placeorder" element={<PlaceOrderScreen />} />
-              <Route path="/order/:id" element={<ProtectedRoute><OrderScreen /></ProtectedRoute>} />
-              <Route path="/orderhistory" element={<ProtectedRoute><OrderHistoryScreen /></ProtectedRoute>} />
+              <Route
+                path="/order/:id"
+                element={
+                  <ProtectedRoute>
+                    <OrderScreen />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/orderhistory"
+                element={
+                  <ProtectedRoute>
+                    <OrderHistoryScreen />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/shipping" element={<ShippingAddressScreen />} />
               <Route path="/payment" element={<PaymentMethodScreen />} />
-              <Route path="/admin/dashboard" element={<AdminRoute><DashboardScreen /></AdminRoute>} />
-              <Route path="/admin/orders" element={<AdminRoute><OrderListScreen /></AdminRoute>} />
-              <Route path="/admin/users" element={<AdminRoute><UserListScreen /></AdminRoute>} />
-              <Route path="/admin/products" element={<AdminRoute><ProductListScreen /></AdminRoute>} />
-              <Route path="/admin/product/:id" element={<AdminRoute><ProductEditScreen /></AdminRoute>} />
-              <Route path="/admin/user/:id" element={<AdminRoute><UserEditScreen /></AdminRoute>} />
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <AdminRoute>
+                    <DashboardScreen />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/orders"
+                element={
+                  <AdminRoute>
+                    <OrderListScreen />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <AdminRoute>
+                    <UserListScreen />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/products"
+                element={
+                  <AdminRoute>
+                    <ProductListScreen />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/product/:id"
+                element={
+                  <AdminRoute>
+                    <ProductEditScreen />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/user/:id"
+                element={
+                  <AdminRoute>
+                    <UserEditScreen />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/featured"
+                element={
+                  <AdminRoute>
+                    <DashboardScreen />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/admin/featured/create"
+                element={
+                  <AdminRoute>
+                    <FeaturedItemCreateScreen />
+                  </AdminRoute>
+                }
+              />
               <Route path="/" element={<HomeScreen />} />
             </Routes>
           </Container>
         </main>
 
         <footer>
-          <Box textAlign="center" py={2}>
+          <Box
+            textAlign="center"
+            py={2}
+            sx={{ backgroundColor: '#152033', color: 'white' }}
+          >
             Todos los derechos reservados
           </Box>
         </footer>
