@@ -1,0 +1,92 @@
+.App {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(-45deg, #0d0d1a, #1b1b38, #0d0d1a, #152238);
+  background-size: 400% 400%;
+  animation: gradientBG 30s ease infinite;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particles {
+  pointer-events: none;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow: visible;
+  z-index: 1;
+}
+
+/* Partículas: puntos pequeños con glow tipo pixel */
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00fff7;
+  box-shadow:
+    0 0 6px #00fff7,
+    0 0 15px #00fff7,
+    0 0 30px #00fff7;
+  animation-name: pulseGlow, floatUp;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-duration: 4s, 20s;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 10px #00fff7);
+  mix-blend-mode: screen;
+}
+
+/* Variaciones de color en algunas partículas para efecto RGB gamer */
+.particle:nth-child(3n) {
+  background: #ff005c;
+  box-shadow:
+    0 0 6px #ff005c,
+    0 0 15px #ff005c,
+    0 0 30px #ff005c;
+  filter: drop-shadow(0 0 10px #ff005c);
+}
+
+.particle:nth-child(5n) {
+  background: #00ff94;
+  box-shadow:
+    0 0 6px #00ff94,
+    0 0 15px #00ff94,
+    0 0 30px #00ff94;
+  filter: drop-shadow(0 0 10px #00ff94);
+}
+
+/* Animación pulsante */
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+/* Animación de subida */
+@keyframes floatUp {
+  0% {
+    transform: translateY(100vh) scale(0.7);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-10vh) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Animación del fondo */
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 50%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 50%; }
+  100% { background-position: 0% 50%; }
+}

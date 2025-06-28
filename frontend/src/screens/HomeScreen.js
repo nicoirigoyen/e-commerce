@@ -9,7 +9,6 @@ import FeaturedSection from '../components/FeaturedSection';
 import CategoryDropdown from '../components/CategoryDropdown';
 import { FaWhatsapp } from 'react-icons/fa';
 
-// MUI
 import {
   Container,
   Typography,
@@ -61,7 +60,7 @@ const HomeScreen = () => {
         <title>UpSeeBuy</title>
       </Helmet>
 
-      {/* Categorías con Fade */}
+      {/* Categorías */}
       <Fade in timeout={800}>
         <Paper
           elevation={3}
@@ -69,10 +68,13 @@ const HomeScreen = () => {
             display: 'flex',
             justifyContent: 'space-around',
             alignItems: 'center',
+            flexWrap: 'wrap',
             p: 2,
             mb: 4,
-            bgcolor: 'background.paper',
-            borderRadius: 2,
+            bgcolor: 'rgba(255,255,255,0.06)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: 3,
+            boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
           }}
         >
           <CategoryDropdown />
@@ -82,10 +84,17 @@ const HomeScreen = () => {
               variant="outlined"
               color="primary"
               sx={{
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                m: 1,
+                borderColor: '#6B8DD6',
+                color: '#6B8DD6',
+                fontWeight: '600',
+                textTransform: 'none',
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                  transform: 'scale(1.1)',
-                  boxShadow: 4,
+                  backgroundColor: '#6B8DD6',
+                  color: '#fff',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
                 },
               }}
             >
@@ -95,7 +104,7 @@ const HomeScreen = () => {
         </Paper>
       </Fade>
 
-      {/* Destacados con Fade */}
+      {/* Sección destacada */}
       <Fade in timeout={1000}>
         <Box>
           <FeaturedSection />
@@ -104,9 +113,19 @@ const HomeScreen = () => {
 
       {/* Productos */}
       <Box sx={{ mt: 6 }}>
-        <Typography variant="h5" gutterBottom>
+        <Typography
+          variant="h5"
+          gutterBottom
+          sx={{
+            color: '#ffffff',
+            fontWeight: 'bold',
+            letterSpacing: 0.5,
+            textShadow: '1px 1px 3px rgba(0,0,0,0.4)',
+          }}
+        >
           Productos destacados
         </Typography>
+
         {loading ? (
           <LoadingBox />
         ) : error ? (
@@ -114,27 +133,20 @@ const HomeScreen = () => {
         ) : (
           <Grid container spacing={3}>
             {products.map((product, index) => (
-              <Grid
-                item
-                xs={12}
-                sm={6}
-                md={4}
-                lg={3}
-                key={product.slug}
-                // Animación Grow con delay según el índice
-              >
+              <Grid item xs={12} sm={6} md={4} lg={3} key={product.slug}>
                 <Grow in timeout={500 + index * 200}>
                   <Box
                     sx={{
                       height: '100%',
                       display: 'flex',
                       flexDirection: 'column',
-                      '&:hover': {
-                        transform: 'scale(1.05)',
-                        boxShadow: 6,
-                      },
                       transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                      borderRadius: 1,
+                      borderRadius: 2,
+                      '&:hover': {
+                        transform: 'scale(1.04)',
+                        boxShadow: '0 10px 24px rgba(0,0,0,0.2)',
+                        border: '1px solid #6B8DD6',
+                      },
                     }}
                   >
                     <Product product={product} />
@@ -146,7 +158,7 @@ const HomeScreen = () => {
         )}
       </Box>
 
-      {/* WhatsApp flotante con animación pulsante */}
+      {/* WhatsApp flotante */}
       <Fab
         color="success"
         aria-label="whatsapp"

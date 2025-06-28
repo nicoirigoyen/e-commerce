@@ -1,36 +1,95 @@
 @import "~slick-carousel/slick/slick.css"; 
 @import "~slick-carousel/slick/slick-theme.css";
 
-body {
+html, body, #root {
+  height: 100%;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  padding: 0;
+  background-color: transparent; /* para que fondo animado se vea */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #e2e2e2;
+  color: white;
 }
+
+/* Fondo animado principal */
+.App {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(-45deg, #152238, #1C2E48, #284266, #1C2E48, #152238);
+  background-size: 600% 600%;
+  animation: gradientBG 35s ease infinite;
+  color: white;
+  overflow: hidden;
+}
+
+/* Partículas animadas (círculos brillantes que flotan) */
+.particles {
+  pointer-events: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+  overflow: visible;
+}
+
+.particle {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.3);
+  animation-name: floatUp;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  opacity: 0.7;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 50%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(100vh) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-10vh) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Generales de layout */
 .site-container {
   min-height: 100vh;
 }
 main {
   flex: 1;
 }
+
+/* Botones primarios */
 .btn-primary,
 .btn-outline-primary {
   background-color: #f0c040;
   color: #000000;
 }
+
+/* Productos */
 .products {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
 }
-
 .rating span {
   color: #ffc000;
 }
-
 .product {
   border: 1px #404040 solid;
   margin: 1rem;
@@ -52,6 +111,7 @@ main {
   max-width: 600px;
 }
 
+/* Checkout steps */
 .checkout-steps > div {
   border-bottom: 0.2rem solid #a0a0a0;
   color: #a0a0a0;
@@ -61,7 +121,7 @@ main {
   color: #f08000;
 }
 
-/* sidebar */
+/* Sidebar */
 .navbar-brand {
   font-weight: bold;
 }
@@ -73,7 +133,6 @@ main {
   background-color: #100901;
   transition: 0.5s;
 }
-
 .site-container {
   transition: 0.4s;
 }
@@ -88,7 +147,6 @@ main {
 }
 
 /* Map */
-
 .full-box {
   height: 100vh;
   max-width: initial;
@@ -103,11 +161,9 @@ main {
   margin: 0;
   padding: 0;
 }
-
 .full-box .mt-3 {
   margin-top: 0 !important;
 }
-
 .map-input-box {
   box-sizing: border-box;
   position: absolute;
@@ -128,9 +184,9 @@ main {
 }
 button.thumbnail {
   padding: 0;
-
 }
 
+/* Slick carousel arrows */
 .slick-prev,
 .slick-next {
   font-size: 24px;
@@ -140,20 +196,17 @@ button.thumbnail {
   padding: 10px;
   z-index: 10;
 }
-
 .slick-prev:hover,
 .slick-next:hover {
   background-color: #f0f0f0;
 }
-
 .slick-arrow {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-
-/* 🔽 Barra de navegación debajo del Header */
+/* Navegación barra debajo header */
 .nav-bar {
   display: flex;
   align-items: center;
@@ -162,8 +215,7 @@ button.thumbnail {
   gap: 15px;
   border-bottom: 2px solid #ddd; /* Línea separadora */
 }
-
-/* 🔽 Estilo para los botones de navegación */
+/* Botones de navegación */
 .nav-button {
   background: none;
   border: none;
@@ -174,19 +226,15 @@ button.thumbnail {
   padding: 10px 15px;
   transition: all 0.3s ease;
 }
-
 .nav-button:hover {
   color: #ff9800; /* Color de hover */
   font-weight: bold;
 }
-
 @media (max-width: 1000px) {
   .ocultar-en-mobile {
     display: none !important;
   }
 }
-
-/* Oculta el botón en pantallas grandes */
 @media (min-width: 1000px) {
   .solo-mobile {
     display: none !important;
