@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/nicoirigoyen/e-commerce#readme",
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "browserslist": "^4.21.3",
     "dotenv": "^16.4.5"
   },

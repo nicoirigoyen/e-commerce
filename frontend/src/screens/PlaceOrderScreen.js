@@ -28,15 +28,12 @@ const reducer = (state, action) => {
 
 export default function PlaceOrderScreen() {
   const navigate = useNavigate();
-
-  const [{ loading }, dispatch] = useReducer(reducer, {
-    loading: false,
-  });
+  const [{ loading }, dispatch] = useReducer(reducer, { loading: false });
 
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { cart, userInfo } = state;
 
-  const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100; // 123.2345 => 123.23
+  const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
   cart.itemsPrice = round2(
     cart.cartItems.reduce((a, c) => a + c.quantity * c.price, 0)
   );
@@ -65,6 +62,7 @@ export default function PlaceOrderScreen() {
           },
         }
       );
+
       ctxDispatch({ type: 'CART_CLEAR' });
       dispatch({ type: 'CREATE_SUCCESS' });
       localStorage.removeItem('cartItems');
@@ -82,51 +80,71 @@ export default function PlaceOrderScreen() {
   }, [cart, navigate]);
 
   return (
-    <div>
-      <CheckoutSteps step1 step2 step3 step4></CheckoutSteps>
+    <div
+      className="p-4"
+      style={{
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        backdropFilter: 'blur(8px)',
+        borderRadius: '12px',
+        color: '#eee',
+        boxShadow: '0 0 10px rgba(0,255,255,0.1)',
+      }}
+    >
       <Helmet>
         <title>Vista previa del pedido</title>
       </Helmet>
-      <h1 className="my-3">Vista previa del pedido</h1>
+      <CheckoutSteps step1 step2 step3 step4 />
+      <h2 style={{ color: '#58f0ff' }} className="my-4">
+        Vista previa del pedido
+      </h2>
       <Row>
         <Col md={8}>
-          <Card className="mb-3">
+          {/* ENVÍO */}
+          <Card className="mb-4 border-0" style={{ backgroundColor: '#111827cc' }}>
             <Card.Body>
-              <Card.Title>Transporte</Card.Title>
+              <Card.Title style={{ color: '#58f0ff' }}>Transporte</Card.Title>
               <Card.Text>
                 <strong>Nombre:</strong> {cart.shippingAddress.fullName} <br />
-                <strong>Direccion: </strong> {cart.shippingAddress.address},
-                {cart.shippingAddress.city}, {cart.shippingAddress.postalCode},
+                <strong>Dirección:</strong> {cart.shippingAddress.address},{' '}
+                {cart.shippingAddress.city}, {cart.shippingAddress.postalCode},{' '}
                 {cart.shippingAddress.country}
               </Card.Text>
-              <Link to="/shipping">Editar</Link>
+              <Link to="/shipping" className="text-neon">Editar</Link>
             </Card.Body>
           </Card>
 
-          <Card className="mb-3">
+          {/* PAGO */}
+          <Card className="mb-4 border-0" style={{ backgroundColor: '#111827cc' }}>
             <Card.Body>
-              <Card.Title>Pago</Card.Title>
+              <Card.Title style={{ color: '#58f0ff' }}>Pago</Card.Title>
               <Card.Text>
                 <strong>Forma de pago:</strong> {cart.paymentMethod}
               </Card.Text>
-              <Link to="/payment">Editar</Link>
+              <Link to="/payment" className="text-neon">Editar</Link>
             </Card.Body>
           </Card>
 
-          <Card className="mb-3">
+          {/* PRODUCTOS */}
+          <Card className="mb-4 border-0" style={{ backgroundColor: '#111827cc' }}>
             <Card.Body>
-              <Card.Title>Productos</Card.Title>
+              <Card.Title style={{ color: '#58f0ff' }}>Productos</Card.Title>
               <ListGroup variant="flush">
                 {cart.cartItems.map((item) => (
-                  <ListGroup.Item key={item._id}>
+                  <ListGroup.Item
+                    key={item._id}
+                    style={{ backgroundColor: '#1f2937', color: '#eee' }}
+                  >
                     <Row className="align-items-center">
                       <Col md={6}>
                         <img
                           src={item.image}
                           alt={item.name}
                           className="img-fluid rounded img-thumbnail"
-                        ></img>{' '}
-                        <Link to={`/product/${item.slug}`}>{item.name}</Link>
+                          style={{ maxWidth: '80px', marginRight: '10px' }}
+                        />
+                        <Link to={`/product/${item.slug}`} className="text-neon">
+                          {item.name}
+                        </Link>
                       </Col>
                       <Col md={3}>
                         <span>{item.quantity}</span>
@@ -136,54 +154,62 @@ export default function PlaceOrderScreen() {
                   </ListGroup.Item>
                 ))}
               </ListGroup>
-              <Link to="/cart">Editar</Link>
+              <Link to="/cart" className="text-neon">Editar</Link>
             </Card.Body>
           </Card>
         </Col>
+
+        {/* RESUMEN */}
         <Col md={4}>
-          <Card>
+          <Card className="border-0" style={{ backgroundColor: '#1f2937' }}>
             <Card.Body>
-              <Card.Title>Resumen del pedido</Card.Title>
+              <Card.Title style={{ color: '#58f0ff' }}>Resumen del pedido</Card.Title>
               <ListGroup variant="flush">
-                <ListGroup.Item>
+                <ListGroup.Item style={{ backgroundColor: '#111827', color: '#eee' }}>
                   <Row>
                     <Col>Productos</Col>
                     <Col>${cart.itemsPrice.toFixed(2)}</Col>
                   </Row>
                 </ListGroup.Item>
-                <ListGroup.Item>
+                <ListGroup.Item style={{ backgroundColor: '#111827', color: '#eee' }}>
                   <Row>
                     <Col>Transporte</Col>
                     <Col>${cart.shippingPrice.toFixed(2)}</Col>
                   </Row>
                 </ListGroup.Item>
-                <ListGroup.Item>
+                <ListGroup.Item style={{ backgroundColor: '#111827', color: '#eee' }}>
                   <Row>
-                    <Col>Interes</Col>
+                    <Col>Interés</Col>
                     <Col>${cart.taxPrice.toFixed(2)}</Col>
                   </Row>
                 </ListGroup.Item>
-                <ListGroup.Item>
+                <ListGroup.Item style={{ backgroundColor: '#111827', color: '#eee' }}>
                   <Row>
                     <Col>
-                      <strong> Total del pedido</strong>
+                      <strong>Total</strong>
                     </Col>
                     <Col>
                       <strong>${cart.totalPrice.toFixed(2)}</strong>
                     </Col>
                   </Row>
                 </ListGroup.Item>
-                <ListGroup.Item>
+                <ListGroup.Item style={{ backgroundColor: '#111827' }}>
                   <div className="d-grid">
                     <Button
                       type="button"
                       onClick={placeOrderHandler}
                       disabled={cart.cartItems.length === 0}
+                      style={{
+                        backgroundColor: '#00c2ff',
+                        color: '#000',
+                        fontWeight: 'bold',
+                        border: 'none',
+                      }}
                     >
                       Realizar pedido
                     </Button>
                   </div>
-                  {loading && <LoadingBox></LoadingBox>}
+                  {loading && <LoadingBox />}
                 </ListGroup.Item>
               </ListGroup>
             </Card.Body>

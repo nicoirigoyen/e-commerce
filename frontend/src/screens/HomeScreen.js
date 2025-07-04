@@ -2,7 +2,7 @@ import React, { useEffect, useReducer } from 'react';
 import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
 import logger from 'use-reducer-logger';
-import Product from '../components/Product';
+import ProductCard  from '../components/ProductCard';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import FeaturedSection from '../components/FeaturedSection';
@@ -57,7 +57,7 @@ const HomeScreen = () => {
   return (
     <Container maxWidth="lg" sx={{ pt: 4, pb: 10 }}>
       <Helmet>
-        <title>UpSeeBuy</title>
+        <title>NiTecno</title>
       </Helmet>
 
       {/* Categorías */}
@@ -121,6 +121,7 @@ const HomeScreen = () => {
             fontWeight: 'bold',
             letterSpacing: 0.5,
             textShadow: '1px 1px 3px rgba(0,0,0,0.4)',
+            mb: 2,
           }}
         >
           Productos destacados
@@ -134,22 +135,15 @@ const HomeScreen = () => {
           <Grid container spacing={3}>
             {products.map((product, index) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={product.slug}>
-                <Grow in timeout={500 + index * 200}>
+                <Grow in timeout={500 + index * 150}>
                   <Box
                     sx={{
                       height: '100%',
                       display: 'flex',
                       flexDirection: 'column',
-                      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                      borderRadius: 2,
-                      '&:hover': {
-                        transform: 'scale(1.04)',
-                        boxShadow: '0 10px 24px rgba(0,0,0,0.2)',
-                        border: '1px solid #6B8DD6',
-                      },
                     }}
                   >
-                    <Product product={product} />
+                    <ProductCard product={product} />
                   </Box>
                 </Grow>
               </Grid>
@@ -157,6 +151,7 @@ const HomeScreen = () => {
           </Grid>
         )}
       </Box>
+
 
       {/* WhatsApp flotante */}
       <Fab

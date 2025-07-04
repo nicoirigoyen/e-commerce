@@ -64,7 +64,7 @@ export default function SigninScreen() {
         }}
       >
         <h2 className="text-center mb-4" style={{ color: '#eeeeee' }}>
-          Bienvenido a <span style={{ color: '#D12B19' }}>UpSeeBuy</span>
+          Bienvenido a <span style={{ color: '#D12B19' }}>NiTecno</span>
         </h2>
 
         <Form onSubmit={submitHandler}>

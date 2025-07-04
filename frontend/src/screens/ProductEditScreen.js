@@ -4,13 +4,18 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { Store } from '../Store';
 import { getError } from '../utils';
-import Container from 'react-bootstrap/Container';
-import ListGroup from 'react-bootstrap/ListGroup';
-import Form from 'react-bootstrap/Form';
 import { Helmet } from 'react-helmet-async';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
-import Button from 'react-bootstrap/Button';
+
+import {
+  Container,
+  Form,
+  Button,
+  ListGroup,
+  Row,
+  Col,
+} from 'react-bootstrap';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -27,32 +32,26 @@ const reducer = (state, action) => {
     case 'UPDATE_FAIL':
       return { ...state, loadingUpdate: false };
     case 'UPLOAD_REQUEST':
-      return { ...state, loadingUpload: true, errorUpload: '' };
+      return { ...state, loadingUpload: true };
     case 'UPLOAD_SUCCESS':
-      return {
-        ...state,
-        loadingUpload: false,
-        errorUpload: '',
-      };
+      return { ...state, loadingUpload: false };
     case 'UPLOAD_FAIL':
       return { ...state, loadingUpload: false, errorUpload: action.payload };
-
     default:
       return state;
   }
 };
+
 export default function ProductEditScreen() {
   const navigate = useNavigate();
-  const params = useParams(); // /product/:id
+  const params = useParams();
   const { id: productId } = params;
 
   const { state } = useContext(Store);
   const { userInfo } = state;
+
   const [{ loading, error, loadingUpdate, loadingUpload }, dispatch] =
-    useReducer(reducer, {
-      loading: true,
-      error: '',
-    });
+    useReducer(reducer, { loading: true, error: '' });
 
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
@@ -80,10 +79,7 @@ export default function ProductEditScreen() {
         setDescription(data.description);
         dispatch({ type: 'FETCH_SUCCESS' });
       } catch (err) {
-        dispatch({
-          type: 'FETCH_FAIL',
-          payload: getError(err),
-        });
+        dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
     fetchData();
@@ -111,26 +107,25 @@ export default function ProductEditScreen() {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         }
       );
-      dispatch({
-        type: 'UPDATE_SUCCESS',
-      });
-      toast.success('Product updated successfully');
+      dispatch({ type: 'UPDATE_SUCCESS' });
+      toast.success('Producto modificado correctamente');
       navigate('/admin/products');
     } catch (err) {
       toast.error(getError(err));
       dispatch({ type: 'UPDATE_FAIL' });
     }
   };
+
   const uploadFileHandler = async (e, forImages) => {
     const file = e.target.files[0];
-    const bodyFormData = new FormData();
-    bodyFormData.append('file', file);
+    const formData = new FormData();
+    formData.append('file', file);
     try {
       dispatch({ type: 'UPLOAD_REQUEST' });
-      const { data } = await axios.post('/api/upload', bodyFormData, {
+      const { data } = await axios.post('/api/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          authorization: `Bearer ${userInfo.token}`,
+          Authorization: `Bearer ${userInfo.token}`,
         },
       });
       dispatch({ type: 'UPLOAD_SUCCESS' });
@@ -140,133 +135,184 @@ export default function ProductEditScreen() {
       } else {
         setImage(data.secure_url);
       }
-      toast.success('Image uploaded successfully. click Update to apply it');
+      toast.success('Imagen subida. Presioná "Modificar" para guardar.');
     } catch (err) {
       toast.error(getError(err));
       dispatch({ type: 'UPLOAD_FAIL', payload: getError(err) });
     }
   };
-  const deleteFileHandler = async (fileName, f) => {
-    console.log(fileName, f);
-    console.log(images);
-    console.log(images.filter((x) => x !== fileName));
+
+  const deleteFileHandler = (fileName) => {
     setImages(images.filter((x) => x !== fileName));
-    toast.success('Image removed successfully. click Update to apply it');
+    toast.success('Imagen eliminada. Presioná "Modificar" para guardar.');
   };
+
   return (
-    <Container className="small-container">
+    <Container className="py-4">
       <Helmet>
-        <title>Edit Product ${productId}</title>
+        <title>Editar producto</title>
       </Helmet>
-      <h1>Edit Product {productId}</h1>
+      <div
+        className="p-4"
+        style={{
+          backgroundColor: 'rgba(255,255,255,0.04)',
+          backdropFilter: 'blur(8px)',
+          borderRadius: '12px',
+          color: '#eee',
+          boxShadow: '0 0 10px rgba(0,255,255,0.1)',
+        }}
+      >
+        <h2 className="mb-4 text-center" style={{ color: '#58f0ff' }}>
+          Editar producto
+        </h2>
 
-      {loading ? (
-        <LoadingBox></LoadingBox>
-      ) : error ? (
-        <MessageBox variant="danger">{error}</MessageBox>
-      ) : (
-        <Form onSubmit={submitHandler}>
-          <Form.Group className="mb-3" controlId="name">
-            <Form.Label>Name</Form.Label>
-            <Form.Control
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="slug">
-            <Form.Label>Slug</Form.Label>
-            <Form.Control
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              required
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="name">
-            <Form.Label>Precio</Form.Label>
-            <Form.Control
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              required
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="image">
-            <Form.Label>Imagen</Form.Label>
-            <Form.Control
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              required
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="imageFile">
-            <Form.Label>Cargar imagen</Form.Label>
-            <Form.Control type="file" onChange={uploadFileHandler} />
-            {loadingUpload && <LoadingBox></LoadingBox>}
-          </Form.Group>
+        {loading ? (
+          <LoadingBox />
+        ) : error ? (
+          <MessageBox variant="danger">{error}</MessageBox>
+        ) : (
+          <Form onSubmit={submitHandler}>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3" controlId="name">
+                  <Form.Label>Nombre</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="bg-dark text-light border-secondary"
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="slug">
+                  <Form.Label>Slug</Form.Label>
+                  <Form.Control
+                    value={slug}
+                    onChange={(e) => setSlug(e.target.value)}
+                    className="bg-dark text-light border-secondary"
+                    required
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="price">
+                  <Form.Label>Precio</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="bg-dark text-light border-secondary"
+                    required
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="countInStock">
+                  <Form.Label>Stock</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={countInStock}
+                    onChange={(e) => setCountInStock(e.target.value)}
+                    className="bg-dark text-light border-secondary"
+                    required
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="brand">
+                  <Form.Label>Marca</Form.Label>
+                  <Form.Control
+                    value={brand}
+                    onChange={(e) => setBrand(e.target.value)}
+                    className="bg-dark text-light border-secondary"
+                    required
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="category">
+                  <Form.Label>Categoría</Form.Label>
+                  <Form.Control
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="bg-dark text-light border-secondary"
+                    required
+                  />
+                </Form.Group>
+              </Col>
 
-          <Form.Group className="mb-3" controlId="additionalImage">
-            <Form.Label>Imagenes adicionales</Form.Label>
-            {images.length === 0 && <MessageBox>Sin imagen</MessageBox>}
-            <ListGroup variant="flush">
-              {images.map((x) => (
-                <ListGroup.Item key={x}>
-                  {x}
-                  <Button variant="light" onClick={() => deleteFileHandler(x)}>
-                    <i className="fa fa-times-circle"></i>
-                  </Button>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="additionalImageFile">
-            <Form.Label>Cargar imagen adicional</Form.Label>
-            <Form.Control
-              type="file"
-              onChange={(e) => uploadFileHandler(e, true)}
-            />
-            {loadingUpload && <LoadingBox></LoadingBox>}
-          </Form.Group>
+              <Col md={6}>
+                <Form.Group className="mb-3" controlId="image">
+                  <Form.Label>Imagen principal</Form.Label>
+                  <Form.Control
+                    value={image}
+                    onChange={(e) => setImage(e.target.value)}
+                    className="bg-dark text-light border-secondary"
+                    required
+                  />
+                </Form.Group>
 
-          <Form.Group className="mb-3" controlId="category">
-            <Form.Label>Categoria</Form.Label>
-            <Form.Control
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              required
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="brand">
-            <Form.Label>Marca</Form.Label>
-            <Form.Control
-              value={brand}
-              onChange={(e) => setBrand(e.target.value)}
-              required
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="countInStock">
-            <Form.Label>Stock</Form.Label>
-            <Form.Control
-              value={countInStock}
-              onChange={(e) => setCountInStock(e.target.value)}
-              required
-            />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="description">
-            <Form.Label>Descripcion</Form.Label>
-            <Form.Control
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-            />
-          </Form.Group>
-          <div className="mb-3">
-            <Button disabled={loadingUpdate} type="submit">
-              Modificar
-            </Button>
-            {loadingUpdate && <LoadingBox></LoadingBox>}
-          </div>
-        </Form>
-      )}
+                <Form.Group className="mb-3" controlId="imageFile">
+                  <Form.Label>Cargar imagen</Form.Label>
+                  <Form.Control type="file" onChange={uploadFileHandler} />
+                  {loadingUpload && <LoadingBox />}
+                </Form.Group>
+
+                <Form.Group className="mb-3" controlId="additionalImage">
+                  <Form.Label>Imágenes adicionales</Form.Label>
+                  <ListGroup variant="flush">
+                    {images.map((x) => (
+                      <ListGroup.Item
+                        key={x}
+                        className="d-flex justify-content-between align-items-center bg-dark text-light"
+                      >
+                        {x}
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => deleteFileHandler(x)}
+                        >
+                          <i className="fas fa-times" />
+                        </Button>
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+                </Form.Group>
+
+                <Form.Group className="mb-3" controlId="additionalImageFile">
+                  <Form.Label>Cargar imagen adicional</Form.Label>
+                  <Form.Control
+                    type="file"
+                    onChange={(e) => uploadFileHandler(e, true)}
+                  />
+                  {loadingUpload && <LoadingBox />}
+                </Form.Group>
+
+                <Form.Group className="mb-3" controlId="description">
+                  <Form.Label>Descripción</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="bg-dark text-light border-secondary"
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <div className="d-grid mt-3">
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={loadingUpdate}
+                style={{
+                  backgroundColor: '#D12B19',
+                  border: 'none',
+                  fontWeight: 'bold',
+                  borderRadius: '10px',
+                }}
+              >
+                Modificar producto
+              </Button>
+              {loadingUpdate && <LoadingBox />}
+            </div>
+          </Form>
+        )}
+      </div>
     </Container>
   );
 }

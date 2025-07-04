@@ -60,7 +60,13 @@ app.use((err, req, res, next) => {
   res.status(500).send({ message: err.message });
 });
 
+//const port = process.env.PORT || 5001;
+//app.listen(port, () => {
+//  console.log(`serve at http://localhost:${port}`);
+//});
+
+//Local para ver en celu
 const port = process.env.PORT || 5001;
-app.listen(port, () => {
-  console.log(`serve at http://localhost:${port}`);
+app.listen(port, '0.0.0.0',() => {
+  console.log(`serve at http://0.0.0.0:${port}`);
 });

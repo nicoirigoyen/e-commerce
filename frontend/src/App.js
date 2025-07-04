@@ -3,6 +3,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import HomeScreen from './screens/HomeScreen';
 import ProductScreen from './screens/ProductScreen';
+import ServicioTecnicoScreen from './screens/ServicioTecnicoScreen';
 import Container from '@mui/material/Container';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -14,6 +15,10 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Drawer from '@mui/material/Drawer';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -45,6 +50,8 @@ import MapScreen from './screens/MapScreen';
 import FeaturedItemCreateScreen from './screens/FeaturedItemCreateScreen';
 import logo from './logo.svg';
 import AnimatedBackground from './components/AnimatedBackground';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 function App() {
   const { state, dispatch: ctxDispatch } = useContext(Store);
@@ -56,32 +63,152 @@ function App() {
     window.location.href = '/signin';
   };
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [sidebarIsOpen, setSidebarIsOpen] = useState(false);
-  const [categories, setCategories] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
   const handleMenu = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const { data } = await axios.get(`/api/products/categories`);
-        setCategories(data);
-      } catch (err) {
-        toast.error(getError(err));
-      }
-    };
-    fetchCategories();
-  }, []);
+  // Colocar esto arriba, antes del return
+  const SidebarContent = (
+    <Box
+      sx={{
+        width: { xs: '100%', sm: 320 },
+        bgcolor: '#1C2E48',
+        height: '100%',
+        color: 'white',
+        padding: 2,
+      }}
+    >
+      <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+        Categorías
+      </Typography>
+
+      {/* Secciones PC / Notebook / Componentes... (las que ya tenés) */}
+      {/* Copiá tal cual lo que ya tenés dentro del Drawer acá */}
+
+      {/* Servicio Técnico */}
+      <List sx={{ mt: 3 }}>
+        <ListItem
+          button
+          component={Link}
+          to="/servicio-tecnico"
+          sx={{
+            bgcolor: '#D12B19',
+            borderRadius: 1,
+            '&:hover': {
+              bgcolor: '#FF3B3B',
+              color: '#fff',
+            },
+          }}
+        >
+          <ListItemText
+            primary="Servicio Técnico"
+            primaryTypographyProps={{
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}
+          />
+        </ListItem>
+      </List>
+    </Box>
+  );
+
+ /*const CategoryMenu = () => (
+    <Box
+      sx={{
+        display: isMobile ? 'none' : 'flex',
+        gap: 3,
+        justifyContent: 'center',
+        bgcolor: '#1C2E48',
+        py: 1,
+        borderBottom: '2px solid #152033',
+        flexWrap: 'wrap',
+      }}
+    >
+      <Button component={Link} to="/search?category=Gaming" sx={{ color: 'white' }}>
+        PC Gaming
+      </Button>
+      <Button component={Link} to="/search?category=Escritorio" sx={{ color: 'white' }}>
+        PC Escritorio
+      </Button>
+      <Button component={Link} to="/search?category=Notebook-Gaming" sx={{ color: 'white' }}>
+        Notebook Gaming
+      </Button>
+      <Button component={Link} to="/search?category=Notebook-Uso-General" sx={{ color: 'white' }}>
+        Notebook Uso General
+      </Button>
+      <Button component={Link} to="/search?category=Procesadores" sx={{ color: 'white' }}>
+        Procesadores
+      </Button>
+      <Button component={Link} to="/search?category=PlacasDeVideo" sx={{ color: 'white' }}>
+        Placas de Video
+      </Button>
+      <Button component={Link} to="/search?category=MemoriasRAM" sx={{ color: 'white' }}>
+        Memorias RAM
+      </Button>
+      <Button
+        component={Link}
+        to="/servicio-tecnico"
+        sx={{
+          bgcolor: '#D12B19',
+          color: 'white',
+          fontWeight: 'bold',
+          px: 2,
+          borderRadius: 1,
+          '&:hover': { bgcolor: '#FF3B3B' },
+        }}
+      >
+        Servicio Técnico
+      </Button>
+    </Box>
+  );*/
+
+    // Flag: mostrará u ocultará el banner
+    const showBanner = true;           // ← ponelo en false si no querés que aparezca
+
+    // Banner animado
+    const Banner = () => (
+      <Box
+        sx={{
+          width: '100%',
+          bgcolor: '#0D47A1',       // azul neon; cambialo si querés otro tono
+          color: 'white',
+          overflow: 'hidden',
+          py: 1,
+        }}
+      >
+        <Typography
+          sx={{
+            whiteSpace: 'nowrap',
+            animation: 'marquee 18s linear infinite',
+            fontWeight: 'bold',
+            fontSize: { xs: '0.8rem', sm: '1rem' },
+            px: 2,
+          }}
+        >
+          🔥 ¡Envíos gratis en compras mayores a $150.000! — 💳 3 y 6 cuotas sin interés — 📞
+          Consultas por WhatsApp 351‑XXX‑XXXX —
+        </Typography>
+
+        {/* Animación marquee */}
+        <style>
+          {`
+            @keyframes marquee {
+              0%   { transform: translateX(100%); }
+              100% { transform: translateX(-100%); }
+            }
+          `}
+        </style>
+      </Box>
+    );
 
   return (
     <BrowserRouter>
-      {/* Fondo animado en zIndex 0 */}
       <AnimatedBackground />
-
-      {/* Contenido principal en zIndex alto para estar encima */}
       <Box
         sx={{
           position: 'relative',
@@ -95,9 +222,20 @@ function App() {
       >
         <ToastContainer position="bottom-center" limit={1} />
 
-        {/* AppBar */}
         <AppBar position="static" sx={{ backgroundColor: '#1F2E4A' }}>
-          <Toolbar sx={{ justifyContent: 'space-between' }}>
+          {/*!isMobile && <CategoryMenu />*/} 
+          {/* Banner animado opcional */}
+          {showBanner && <Banner />}
+          <Toolbar
+            sx={{
+              flexDirection: isMobile ? 'column' : 'row',
+              alignItems: isMobile ? 'flex-start' : 'center',
+              gap: isMobile ? 1 : 0,
+              py: isMobile ? 1 : 0,
+              justifyContent: isMobile ? 'flex-start' : 'space-between',
+              flexWrap: 'wrap',
+            }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
               <IconButton color="inherit" onClick={() => setSidebarIsOpen(true)}>
                 <MenuIcon />
@@ -107,13 +245,7 @@ function App() {
                   component="img"
                   src={logo}
                   alt="logo"
-                  sx={{
-                    height: 40,
-                    ml: 1,
-                    transition: 'transform 0.3s ease',
-                    filter: 'invert(24%) sepia(85%) saturate(5479%) hue-rotate(355deg)',
-                    '&:hover': { transform: 'scale(1.2)' },
-                  }}
+                  sx={{ height: 40, ml: 1, transition: 'transform 0.3s ease', filter: 'invert(24%) sepia(85%) saturate(5479%) hue-rotate(355deg)', '&:hover': { transform: 'scale(1.2)' } }}
                 />
                 <Typography variant="h6" sx={{ fontWeight: 'bold', ml: 1, color: 'white' }}>
                   <Box component="span">Ni</Box>
@@ -121,10 +253,13 @@ function App() {
                 </Typography>
               </Link>
             </Box>
-
-            <Box sx={{ flex: 2, justifyContent: 'center', display: 'flex' }}>
-              <SearchBox />
-            </Box>
+            
+            {/* Sidebar para dispositivos móviles */}
+            <Drawer anchor="left" open={sidebarIsOpen} onClose={() => setSidebarIsOpen(false)}>
+              <Box role="presentation" onClick={() => setSidebarIsOpen(false)}>
+                {SidebarContent}
+              </Box>
+            </Drawer>
 
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'flex-end', flex: 1 }}>
               <Button color="inherit" component={Link} to="/cart" sx={{ position: 'relative' }}>
@@ -132,21 +267,13 @@ function App() {
                 {cart.cartItems.length > 0 && (
                   <Badge
                     badgeContent={cart.cartItems.reduce((a, c) => a + c.quantity, 0)}
-                    sx={{
-                      '& .MuiBadge-badge': {
-                        backgroundColor: '#25D366',
-                        color: '#fff',
-                        fontSize: '0.75rem',
-                      },
-                    }}
+                    sx={{ '& .MuiBadge-badge': { backgroundColor: '#25D366', color: '#fff', fontSize: '0.75rem' } }}
                   />
                 )}
               </Button>
               {userInfo ? (
                 <>
-                  <Button color="inherit" onClick={handleMenu}>
-                    {userInfo.name}
-                  </Button>
+                  <Button color="inherit" onClick={handleMenu}>{userInfo.name}</Button>
                   <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
                     <MenuItem component={Link} to="/profile">Mi Perfil</MenuItem>
                     <MenuItem component={Link} to="/orderhistory">Pedidos</MenuItem>
@@ -169,54 +296,135 @@ function App() {
           </Toolbar>
         </AppBar>
 
-        {/* Sidebar */}
-        <Drawer anchor="left" open={sidebarIsOpen} onClose={() => setSidebarIsOpen(false)}>
-          <Box
-            role="presentation"
-            onClick={() => setSidebarIsOpen(false)}
-            sx={{ width: 250, bgcolor: '#1C2E48', height: '100%', color: 'white' }}
+        <Drawer
+            anchor="left"
+            open={sidebarIsOpen}
+            onClose={() => setSidebarIsOpen(false)}
           >
-            <List>
-              {categories.map((category) => (
+            <Box
+              role="presentation"
+              onClick={() => setSidebarIsOpen(false)}
+              sx={{
+                width: { xs: '100%', sm: 320 },
+                bgcolor: '#1C2E48',
+                height: '100%',
+                color: 'white',
+                padding: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                Categorías
+              </Typography>
+
+              {/* Sección PC */}
+              <Accordion sx={{ bgcolor: 'transparent', color: 'white' }}>
+                <AccordionSummary expandIcon={<MenuIcon sx={{ color: '#25D366' }} />}>
+                  <Typography sx={{ fontWeight: 'bold' }}>PC</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <List>
+                    <ListItem button component={Link} to="/search?category=Gaming">
+                      <ListItemText primary="Gaming" />
+                    </ListItem>
+                    <ListItem button component={Link} to="/search?category=Escritorio">
+                      <ListItemText primary="Escritorio" />
+                    </ListItem>
+                  </List>
+                </AccordionDetails>
+              </Accordion>
+
+              {/* Sección Notebook */}
+              <Accordion sx={{ bgcolor: 'transparent', color: 'white' }}>
+                <AccordionSummary expandIcon={<MenuIcon sx={{ color: '#25D366' }} />}>
+                  <Typography sx={{ fontWeight: 'bold' }}>Notebook</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <List>
+                    <ListItem button component={Link} to="/search?category=Notebook-Gaming">
+                      <ListItemText primary="Gaming" />
+                    </ListItem>
+                    <ListItem button component={Link} to="/search?category=Notebook-Uso-General">
+                      <ListItemText primary="Uso General" />
+                    </ListItem>
+                  </List>
+                </AccordionDetails>
+              </Accordion>
+
+              {/* Sección Componentes */}
+              <Accordion sx={{ bgcolor: 'transparent', color: 'white' }}>
+                <AccordionSummary expandIcon={<MenuIcon sx={{ color: '#25D366' }} />}>
+                  <Typography sx={{ fontWeight: 'bold' }}>Componentes</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <List>
+                    <ListItem button component={Link} to="/search?category=Procesadores">
+                      <ListItemText primary="Procesadores" />
+                    </ListItem>
+                    <ListItem button component={Link} to="/search?category=PlacasDeVideo">
+                      <ListItemText primary="Placas de Video" />
+                    </ListItem>
+                    <ListItem button component={Link} to="/search?category=MemoriasRAM">
+                      <ListItemText primary="Memorias RAM" />
+                    </ListItem>
+                  </List>
+                </AccordionDetails>
+              </Accordion>
+
+              {/* Servicio Técnico */}
+              <List sx={{ mt: 3 }}>
                 <ListItem
                   button
-                  key={category}
                   component={Link}
-                  to={`/search?category=${category}`}
+                  to="/servicio-tecnico"
                   sx={{
+                    bgcolor: '#D12B19',
+                    borderRadius: 1,
                     '&:hover': {
-                      backgroundColor: '#6B8DD6',
+                      bgcolor: '#FF3B3B',
                       color: '#fff',
                     },
                   }}
                 >
-                  <ListItemText primary={category} />
+                  <ListItemText
+                    primary="Servicio Técnico"
+                    primaryTypographyProps={{
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                    }}
+                  />
                 </ListItem>
-              ))}
-            </List>
-          </Box>
-        </Drawer>
+              </List>
+            </Box>
+          </Drawer>
 
-        {/* Main */}
-        <main>
-          <Container sx={{ mt: 3 }}>
+
+       <main>
+          <Container
+              sx={{
+                mt: 3,
+                // ya no dejamos margen porque quitamos el sidebar fijo
+                transition: 'margin-left 0.3s ease',
+              }}
+            >
             <Routes>
               <Route path="/" element={<HomeScreen />} />
               <Route path="/cart" element={<CartScreen />} />
               <Route path="/signin" element={<SigninScreen />} />
               <Route path="/signup" element={<SignupScreen />} />
-              {/* ...resto de rutas */}
+              <Route path="/product/:slug" element={<ProductScreen />} />
+              <Route path="/servicio-tecnico" element={<ServicioTecnicoScreen />} />
+              
+              <Route path="/admin/products" element={<ProductScreen /* mal */ />} />
+              <Route path="/admin/dashboard" element={<DashboardScreen /* mal */ />} />
+              <Route path="/admin/orders" element={<OrderScreen /* mal */  />} />
+              <Route path="/admin/users" element={<UserEditScreen /* mal */ />} />
             </Routes>
           </Container>
         </main>
 
-        {/* Footer */}
+
         <footer>
-          <Box
-            textAlign="center"
-            py={2}
-            sx={{ backgroundColor: '#152033', color: 'white', mt: 'auto' }}
-          >
+          <Box textAlign="center" py={2} sx={{ backgroundColor: '#152033', color: 'white', mt: 'auto' }}>
             Todos los derechos reservados © {new Date().getFullYear()}
           </Box>
         </footer>

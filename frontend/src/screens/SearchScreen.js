@@ -11,6 +11,8 @@ import {
   InputLabel,
   Box,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -18,7 +20,7 @@ import { toast } from 'react-toastify';
 import { getError } from '../utils';
 import { Helmet } from 'react-helmet-async';
 import Rating from '../components/Rating';
-import Product from '../components/Product';
+import ProductCard from '../components/ProductCard';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -42,19 +44,22 @@ const reducer = (state, action) => {
 };
 
 const prices = [
-  { name: '$1 to $50', value: '1-50' },
-  { name: '$51 to $200', value: '51-200' },
-  { name: '$201 to $1000', value: '201-1000' },
+  { name: '$1 a $50', value: '1-50' },
+  { name: '$51 a $200', value: '51-200' },
+  { name: '$201 a $1000', value: '201-1000' },
 ];
 
-export const ratings = [
-  { name: '4 stars & up', rating: 4 },
-  { name: '3 stars & up', rating: 3 },
-  { name: '2 stars & up', rating: 2 },
-  { name: '1 star & up', rating: 1 },
+const ratings = [
+  { name: '4 estrellas o más', rating: 4 },
+  { name: '3 estrellas o más', rating: 3 },
+  { name: '2 estrellas o más', rating: 2 },
+  { name: '1 estrella o más', rating: 1 },
 ];
 
 export default function SearchScreen() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const navigate = useNavigate();
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
@@ -85,10 +90,7 @@ export default function SearchScreen() {
         );
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
       } catch (err) {
-        dispatch({
-          type: 'FETCH_FAIL',
-          payload: getError(err),
-        });
+        dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
     fetchData();
@@ -117,222 +119,126 @@ export default function SearchScreen() {
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 } }}>
+    <Box sx={{ px: { xs: 1, md: 4 }, py: 3 }}>
       <Helmet>
         <title>Buscar producto...</title>
       </Helmet>
 
       <Grid container spacing={3}>
-        {/* Filtros laterales */}
-        <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 2, mb: 3, bgcolor: 'background.paper', boxShadow: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Categorías
-            </Typography>
-            <Box component="ul" sx={{ pl: 2, m: 0, listStyle: 'none' }}>
-              <li>
-                <MuiLink
-                  component={Link}
-                  to={getFilterUrl({ category: 'all' })}
-                  underline="hover"
-                  color={category === 'all' ? 'primary' : 'textPrimary'}
-                  sx={{ fontWeight: category === 'all' ? 'bold' : 'normal' }}
-                >
-                  Todos
-                </MuiLink>
-              </li>
-              {categories.map((c) => (
-                <li key={c}>
-                  <MuiLink
-                    component={Link}
-                    to={getFilterUrl({ category: c })}
-                    underline="hover"
-                    color={c === category ? 'primary' : 'textPrimary'}
-                    sx={{ fontWeight: c === category ? 'bold' : 'normal' }}
-                  >
-                    {c}
-                  </MuiLink>
-                </li>
-              ))}
-            </Box>
-          </Paper>
-
-          <Paper sx={{ p: 2, mb: 3, bgcolor: 'background.paper', boxShadow: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Precio
-            </Typography>
-            <Box component="ul" sx={{ pl: 2, m: 0, listStyle: 'none' }}>
-              <li>
-                <MuiLink
-                  component={Link}
-                  to={getFilterUrl({ price: 'all' })}
-                  underline="hover"
-                  color={price === 'all' ? 'primary' : 'textPrimary'}
-                  sx={{ fontWeight: price === 'all' ? 'bold' : 'normal' }}
-                >
-                  Todos
-                </MuiLink>
-              </li>
-              {prices.map((p) => (
-                <li key={p.value}>
-                  <MuiLink
-                    component={Link}
-                    to={getFilterUrl({ price: p.value })}
-                    underline="hover"
-                    color={p.value === price ? 'primary' : 'textPrimary'}
-                    sx={{ fontWeight: p.value === price ? 'bold' : 'normal' }}
-                  >
-                    {p.name}
-                  </MuiLink>
-                </li>
-              ))}
-            </Box>
-          </Paper>
-
-          <Paper sx={{ p: 2, bgcolor: 'background.paper', boxShadow: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Mejor puntuados
-            </Typography>
-            <Box component="ul" sx={{ pl: 2, m: 0, listStyle: 'none' }}>
-              {ratings.map((r) => (
-                <li key={r.name}>
-                  <MuiLink
-                    component={Link}
-                    to={getFilterUrl({ rating: r.rating })}
-                    underline="hover"
-                    color={String(r.rating) === String(rating) ? 'primary' : 'textPrimary'}
-                    sx={{ fontWeight: String(r.rating) === String(rating) ? 'bold' : 'normal' }}
-                  >
-                    <Rating caption=" & mas" rating={r.rating} />
-                  </MuiLink>
-                </li>
-              ))}
-              <li>
-                <MuiLink
-                  component={Link}
-                  to={getFilterUrl({ rating: 'all' })}
-                  underline="hover"
-                  color={rating === 'all' ? 'primary' : 'textPrimary'}
-                  sx={{ fontWeight: rating === 'all' ? 'bold' : 'normal' }}
-                >
-                  <Rating caption=" & mas" rating={0} />
-                </MuiLink>
-              </li>
-            </Box>
-          </Paper>
-        </Grid>
-
-        {/* Resultados y controles */}
-        <Grid item xs={12} md={9}>
-          {loading ? (
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                mt: 8,
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          ) : error ? (
+        {/* Filtros */}
+        {!isMobile && (
+          <Grid item md={3}>
             <Paper
               sx={{
                 p: 2,
-                bgcolor: 'error.main',
-                color: 'error.contrastText',
-                borderRadius: 1,
-                mb: 2,
+                mb: 3,
+                bgcolor: 'rgba(255,255,255,0.05)',
+                color: 'white',
+                borderRadius: 3,
+                backdropFilter: 'blur(12px)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
               }}
             >
-              <Typography>{error}</Typography>
+              <Typography variant="h6">Filtros</Typography>
+              <Box component="ul" sx={{ listStyle: 'none', pl: 0, mt: 1 }}>
+                <li>
+                  <MuiLink component={Link} to={getFilterUrl({ category: 'all' })} underline="hover" sx={{ color: 'white' }}>
+                    Todas las categorías
+                  </MuiLink>
+                </li>
+                {categories.map((c) => (
+                  <li key={c}>
+                    <MuiLink component={Link} to={getFilterUrl({ category: c })} underline="hover" sx={{ color: 'white' }}>
+                      {c}
+                    </MuiLink>
+                  </li>
+                ))}
+              </Box>
+              <Typography variant="subtitle1" sx={{ mt: 2 }}>Precio</Typography>
+              {prices.map((p) => (
+                <MuiLink
+                  key={p.value}
+                  component={Link}
+                  to={getFilterUrl({ price: p.value })}
+                  underline="hover"
+                  sx={{ display: 'block', color: 'white' }}
+                >
+                  {p.name}
+                </MuiLink>
+              ))}
+              <Typography variant="subtitle1" sx={{ mt: 2 }}>Puntuación</Typography>
+              {ratings.map((r) => (
+                <MuiLink
+                  key={r.rating}
+                  component={Link}
+                  to={getFilterUrl({ rating: r.rating })}
+                  underline="hover"
+                  sx={{ display: 'block', color: 'white' }}
+                >
+                  <Rating rating={r.rating} caption=" o más" />
+                </MuiLink>
+              ))}
             </Paper>
+          </Grid>
+        )}
+
+        {/* Resultados */}
+        <Grid item xs={12} md={9}>
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
+              <CircularProgress color="primary" />
+            </Box>
+          ) : error ? (
+            <Typography color="error">{error}</Typography>
           ) : (
             <>
               <Grid
                 container
                 justifyContent="space-between"
                 alignItems="center"
-                sx={{ mb: 3 }}
+                sx={{ mb: 2, gap: 2 }}
               >
                 <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle1" component="div" noWrap>
-                    {countProducts === 0 ? 'No' : countProducts} resultados
-                    {query !== 'all' && ` : "${query}"`}
-                    {category !== 'all' && ` / Categoria: ${category}`}
-                    {price !== 'all' && ` / Precio: ${price}`}
-                    {rating !== 'all' && ` / Rating: ${rating} estrellas & más`}
-                    {query !== 'all' ||
-                    category !== 'all' ||
-                    price !== 'all' ||
-                    rating !== 'all' ? (
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => navigate('/search')}
-                        sx={{ ml: 1 }}
-                      >
-                        Borrar filtros
-                      </Button>
-                    ) : null}
+                  <Typography sx={{ color: 'white' }}>
+                    {countProducts} resultados {query !== 'all' && `para "${query}"`}
                   </Typography>
                 </Grid>
-
-                <Grid item xs={12} md={6} sx={{ mt: { xs: 1, md: 0 } }}>
-                  <FormControl fullWidth size="small" variant="outlined">
-                    <InputLabel id="order-label">Ordenar por</InputLabel>
+                <Grid item xs={12} md={6}>
+                  <FormControl fullWidth size="small" sx={{ bgcolor: 'white', borderRadius: 1 }}>
+                    <InputLabel id="order-label">Ordenar</InputLabel>
                     <Select
                       labelId="order-label"
                       value={order}
-                      label="Ordenar por"
-                      onChange={(e) => {
-                        navigate(getFilterUrl({ order: e.target.value }));
-                      }}
+                      label="Ordenar"
+                      onChange={(e) => navigate(getFilterUrl({ order: e.target.value }))}
                     >
                       <MenuItem value="newest">Más nuevo</MenuItem>
-                      <MenuItem value="lowest">Precio: de menor a mayor</MenuItem>
-                      <MenuItem value="highest">Precio: de mayor a menor</MenuItem>
+                      <MenuItem value="lowest">Precio: menor a mayor</MenuItem>
+                      <MenuItem value="highest">Precio: mayor a menor</MenuItem>
                       <MenuItem value="toprated">Mejor puntuados</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
               </Grid>
 
-              {/* Lista de productos */}
-              {products.length === 0 && (
-                <Typography variant="h6" color="textSecondary">
-                  No se encontraron productos.
-                </Typography>
-              )}
-
+              {/* Productos */}
               <Grid container spacing={2}>
                 {products.map((product) => (
-                  <Grid item key={product._id} xs={12} sm={6} md={4} lg={3}>
+                  <Grid item key={product._id} xs={12} sm={6} md={4}>
                     <Product product={product} />
                   </Grid>
                 ))}
               </Grid>
 
               {/* Paginación */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  mt: 4,
-                  gap: 1,
-                  flexWrap: 'wrap',
-                }}
-              >
+              <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
                 {[...Array(pages).keys()].map((x) => (
                   <Button
                     key={x + 1}
                     variant={x + 1 === page ? 'contained' : 'outlined'}
                     color="primary"
-                    onClick={() => {
-                      navigate(getFilterUrl({ page: x + 1 }));
-                    }}
+                    onClick={() => navigate(getFilterUrl({ page: x + 1 }))}
                     size="small"
-                    sx={{ minWidth: 36 }}
                   >
                     {x + 1}
                   </Button>

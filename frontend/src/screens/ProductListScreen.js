@@ -9,6 +9,7 @@ import { Store } from '../Store';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import { getError } from '../utils';
+import { Helmet } from 'react-helmet-async';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -27,24 +28,15 @@ const reducer = (state, action) => {
     case 'CREATE_REQUEST':
       return { ...state, loadingCreate: true };
     case 'CREATE_SUCCESS':
-      return {
-        ...state,
-        loadingCreate: false,
-      };
+      return { ...state, loadingCreate: false };
     case 'CREATE_FAIL':
       return { ...state, loadingCreate: false };
-
     case 'DELETE_REQUEST':
       return { ...state, loadingDelete: true, successDelete: false };
     case 'DELETE_SUCCESS':
-      return {
-        ...state,
-        loadingDelete: false,
-        successDelete: true,
-      };
+      return { ...state, loadingDelete: false, successDelete: true };
     case 'DELETE_FAIL':
       return { ...state, loadingDelete: false, successDelete: false };
-
     case 'DELETE_RESET':
       return { ...state, loadingDelete: false, successDelete: false };
     default:
@@ -80,12 +72,14 @@ export default function ProductListScreen() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await axios.get(`/api/products/admin?page=${page} `, {
+        dispatch({ type: 'FETCH_REQUEST' });
+        const { data } = await axios.get(`/api/products/admin?page=${page}`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
-
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
-      } catch (err) {}
+      } catch (err) {
+        dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
+      }
     };
 
     if (successDelete) {
@@ -96,7 +90,7 @@ export default function ProductListScreen() {
   }, [page, userInfo, successDelete]);
 
   const createHandler = async () => {
-    if (window.confirm('Are you sure to create?')) {
+    if (window.confirm('¿Crear nuevo producto?')) {
       try {
         dispatch({ type: 'CREATE_REQUEST' });
         const { data } = await axios.post(
@@ -106,105 +100,127 @@ export default function ProductListScreen() {
             headers: { Authorization: `Bearer ${userInfo.token}` },
           }
         );
-        toast.success('product created successfully');
+        toast.success('Producto creado correctamente');
         dispatch({ type: 'CREATE_SUCCESS' });
         navigate(`/admin/product/${data.product._id}`);
       } catch (err) {
-        toast.error(getError(error));
-        dispatch({
-          type: 'CREATE_FAIL',
-        });
+        toast.error(getError(err));
+        dispatch({ type: 'CREATE_FAIL' });
       }
     }
   };
 
   const deleteHandler = async (product) => {
-    if (window.confirm('Are you sure to delete?')) {
+    if (window.confirm('¿Eliminar este producto?')) {
       try {
         await axios.delete(`/api/products/${product._id}`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
-        toast.success('product deleted successfully');
+        toast.success('Producto eliminado correctamente');
         dispatch({ type: 'DELETE_SUCCESS' });
       } catch (err) {
-        toast.error(getError(error));
-        dispatch({
-          type: 'DELETE_FAIL',
-        });
+        toast.error(getError(err));
+        dispatch({ type: 'DELETE_FAIL' });
       }
     }
   };
 
   return (
-    <div>
-      <Row>
+    <div
+      className="p-4"
+      style={{
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        backdropFilter: 'blur(8px)',
+        borderRadius: '12px',
+        color: '#eee',
+        boxShadow: '0 0 10px rgba(0,255,255,0.1)',
+      }}
+    >
+      <Helmet>
+        <title>Lista de productos</title>
+      </Helmet>
+      <Row className="align-items-center mb-3">
         <Col>
-          <h1>Productos</h1>
+          <h2 style={{ color: '#58f0ff' }}>Productos</h2>
         </Col>
-        <Col className="col text-end">
-          <div>
-            <Button type="button" onClick={createHandler}>
-              Crear Producto
-            </Button>
-          </div>
+        <Col className="text-end">
+          <Button
+            type="button"
+            onClick={createHandler}
+            style={{
+              backgroundColor: '#D12B19',
+              border: 'none',
+              fontWeight: 'bold',
+              borderRadius: '10px',
+            }}
+          >
+            Crear Producto
+          </Button>
         </Col>
       </Row>
 
-      {loadingCreate && <LoadingBox></LoadingBox>}
-      {loadingDelete && <LoadingBox></LoadingBox>}
-
+      {loadingCreate && <LoadingBox />}
+      {loadingDelete && <LoadingBox />}
       {loading ? (
-        <LoadingBox></LoadingBox>
+        <LoadingBox />
       ) : error ? (
         <MessageBox variant="danger">{error}</MessageBox>
       ) : (
         <>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>NOMBRE</th>
-                <th>PRECIO</th>
-                <th>CATEGORIA</th>
-                <th>MARCA</th>
-                <th>ACCION</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product._id}>
-                  <td>{product._id}</td>
-                  <td>{product.name}</td>
-                  <td>{product.price}</td>
-                  <td>{product.category}</td>
-                  <td>{product.brand}</td>
-                  <td>
-                    <Button
-                      type="button"
-                      variant="light"
-                      onClick={() => navigate(`/admin/product/${product._id}`)}
-                    >
-                      Editar
-                    </Button>
-                    &nbsp;
-                    <Button
-                      type="button"
-                      variant="light"
-                      onClick={() => deleteHandler(product)}
-                    >
-                      Eliminar
-                    </Button>
-                  </td>
+          <div className="table-responsive">
+            <table className="table table-dark table-hover table-bordered align-middle text-center">
+              <thead className="table-light text-dark">
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Precio</th>
+                  <th>Categoría</th>
+                  <th>Marca</th>
+                  <th>Acción</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <div>
+              </thead>
+              <tbody>
+                {products.map((product) => (
+                  <tr key={product._id}>
+                    <td>{product._id}</td>
+                    <td>{product.name}</td>
+                    <td>${product.price}</td>
+                    <td>{product.category}</td>
+                    <td>{product.brand}</td>
+                    <td>
+                      <Button
+                        type="button"
+                        variant="outline-info"
+                        size="sm"
+                        onClick={() => navigate(`/admin/product/${product._id}`)}
+                        className="me-2"
+                      >
+                        Editar
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => deleteHandler(product)}
+                      >
+                        Eliminar
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Paginación */}
+          <div className="d-flex justify-content-center mt-4 flex-wrap gap-2">
             {[...Array(pages).keys()].map((x) => (
               <Link
-                className={x + 1 === Number(page) ? 'btn text-bold' : 'btn'}
                 key={x + 1}
                 to={`/admin/products?page=${x + 1}`}
+                className={`btn ${
+                  Number(page) === x + 1 ? 'btn-primary' : 'btn-outline-light'
+                }`}
               >
                 {x + 1}
               </Link>
