@@ -7,8 +7,6 @@ import {
   CardActions,
   Button,
   Box,
-  Tooltip,
-  IconButton,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StarIcon from '@mui/icons-material/Star';
@@ -31,21 +29,17 @@ export default function ProductCard({ product }) {
       window.alert('Lo sentimos, el producto está agotado');
       return;
     }
-    ctxDispatch({
-      type: 'CART_ADD_ITEM',
-      payload: { ...item, quantity },
-    });
+    ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...item, quantity } });
   };
 
-  const renderRating = (rating) => {
-    return Array.from({ length: 5 }, (_, i) =>
+  const renderRating = (rating) =>
+    Array.from({ length: 5 }, (_, i) =>
       i < Math.floor(rating) ? (
-        <StarIcon key={i} sx={{ color: '#00ffc8', fontSize: 20 }} />
+        <StarIcon key={i} sx={{ color: '#ffc000', fontSize: 18 }} />
       ) : (
-        <StarBorderIcon key={i} sx={{ color: '#00ffc8', fontSize: 20 }} />
+        <StarBorderIcon key={i} sx={{ color: '#ffc000', fontSize: 18 }} />
       )
     );
-  };
 
   return (
     <Card
@@ -54,14 +48,14 @@ export default function ProductCard({ product }) {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        background: 'linear-gradient(145deg, #111927, #0a0f1f)',
-        borderRadius: '14px',
+        background: 'linear-gradient(145deg, #152238, #1C2E48)',
+        borderRadius: '18px',
         overflow: 'hidden',
-        boxShadow: '0 0 15px rgba(0,255,204,0.1)',
+        boxShadow: '0 0 18px rgba(240,192,64,0.12)',
         transition: 'transform 0.3s ease, box-shadow 0.3s ease',
         '&:hover': {
-          transform: 'translateY(-5px)',
-          boxShadow: '0 0 20px #00ffc3',
+          transform: 'translateY(-6px)',
+          boxShadow: '0 0 25px rgba(240,192,64,0.5)',
         },
       }}
     >
@@ -71,9 +65,9 @@ export default function ProductCard({ product }) {
           image={product.image}
           alt={product.name}
           sx={{
-            height: 200,
+            height: 220,
             objectFit: 'contain',
-            backgroundColor: '#111',
+            backgroundColor: '#152238',
             p: 2,
           }}
         />
@@ -86,10 +80,9 @@ export default function ProductCard({ product }) {
             gutterBottom
             sx={{
               color: '#ffffff',
-              fontWeight: '600',
-              fontSize: '1rem',
-              lineHeight: 1.2,
-              height: 50,
+              fontWeight: 600,
+              lineHeight: 1.3,
+              height: 48,
               overflow: 'hidden',
             }}
           >
@@ -99,31 +92,20 @@ export default function ProductCard({ product }) {
 
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
           {renderRating(product.rating)}
-          <Typography variant="caption" sx={{ ml: 1, color: '#bbb' }}>
+          <Typography variant="caption" sx={{ ml: 1, color: '#d4d4d4' }}>
             ({product.numReviews})
           </Typography>
         </Box>
 
         <Typography
           variant="h6"
-          sx={{
-            color: '#00ffc3',
-            fontWeight: 'bold',
-            fontSize: '1.2rem',
-          }}
+          sx={{ color: '#f0c040', fontWeight: 'bold', fontSize: '1.25rem' }}
         >
           ${product.price}
         </Typography>
       </CardContent>
 
-      <CardActions
-        sx={{
-          mt: 'auto',
-          p: 2,
-          pt: 1,
-          justifyContent: 'center',
-        }}
-      >
+      <CardActions sx={{ mt: 'auto', p: 2, pt: 1, justifyContent: 'center' }}>
         {product.countInStock === 0 ? (
           <Button
             variant="contained"
@@ -133,7 +115,7 @@ export default function ProductCard({ product }) {
             sx={{
               fontSize: '0.75rem',
               fontWeight: 'bold',
-              borderRadius: '8px',
+              borderRadius: '10px',
               textTransform: 'uppercase',
               py: 1,
             }}
@@ -146,22 +128,27 @@ export default function ProductCard({ product }) {
             fullWidth
             startIcon={<ShoppingCartIcon sx={{ fontSize: 20 }} />}
             sx={{
-              background: 'linear-gradient(90deg, #00eaff 0%, #00ff95 100%)',
+              background: 'linear-gradient(90deg, #f0c040, #ff8c00)',
               color: '#000',
               fontWeight: 'bold',
-              fontSize: '0.75rem',
-              borderRadius: '8px',
+              fontSize: '0.8rem',
+              borderRadius: '12px',
               textTransform: 'uppercase',
-              py: 1,
+              py: 1.1,
+              letterSpacing: 0.8,
+              fontFamily: 'Orbitron, sans-serif',
+              boxShadow: '0 0 10px rgba(255, 140, 0, 0.5)',
               transition: 'all 0.3s ease-in-out',
               '&:hover': {
-                background: 'linear-gradient(90deg, #00c2f5 0%, #00e59b 100%)',
-                boxShadow: '0 0 15px #00eaff',
+                background: 'linear-gradient(90deg, #ff9c23, #ffb347)',
+                boxShadow: '0 0 20px rgba(255, 140, 0, 0.8)',
+                transform: 'scale(1.04)',
               },
             }}
           >
             Agregar
           </Button>
+
         )}
       </CardActions>
     </Card>

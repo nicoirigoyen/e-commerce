@@ -1,34 +1,40 @@
-import axios from 'axios';
 import React, { useContext, useEffect, useReducer } from 'react';
-import { toast } from 'react-toastify';
-import Button from 'react-bootstrap/Button';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
-import LoadingBox from '../components/LoadingBox';
-import MessageBox from '../components/MessageBox';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 import { Store } from '../Store';
 import { getError } from '../utils';
+import DeleteIcon from '@mui/icons-material/Delete';
+import InfoIcon from '@mui/icons-material/Info';
 
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
       return { ...state, loading: true };
     case 'FETCH_SUCCESS':
-      return {
-        ...state,
-        orders: action.payload,
-        loading: false,
-      };
+      return { ...state, orders: action.payload, loading: false };
     case 'FETCH_FAIL':
       return { ...state, loading: false, error: action.payload };
     case 'DELETE_REQUEST':
       return { ...state, loadingDelete: true, successDelete: false };
     case 'DELETE_SUCCESS':
-      return {
-        ...state,
-        loadingDelete: false,
-        successDelete: true,
-      };
+      return { ...state, loadingDelete: false, successDelete: true };
     case 'DELETE_FAIL':
       return { ...state, loadingDelete: false };
     case 'DELETE_RESET':
@@ -37,6 +43,7 @@ const reducer = (state, action) => {
       return state;
   }
 };
+
 export default function OrderListScreen() {
   const navigate = useNavigate();
   const { state } = useContext(Store);
@@ -56,10 +63,7 @@ export default function OrderListScreen() {
         });
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
       } catch (err) {
-        dispatch({
-          type: 'FETCH_FAIL',
-          payload: getError(err),
-        });
+        dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
     if (successDelete) {
@@ -70,85 +74,107 @@ export default function OrderListScreen() {
   }, [userInfo, successDelete]);
 
   const deleteHandler = async (order) => {
-    if (window.confirm('Are you sure to delete?')) {
+    if (window.confirm('¿Estás seguro de eliminar este pedido?')) {
       try {
         dispatch({ type: 'DELETE_REQUEST' });
         await axios.delete(`/api/orders/${order._id}`, {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
-        toast.success('order deleted successfully');
+        toast.success('Pedido eliminado');
         dispatch({ type: 'DELETE_SUCCESS' });
       } catch (err) {
-        toast.error(getError(error));
-        dispatch({
-          type: 'DELETE_FAIL',
-        });
+        toast.error(getError(err));
+        dispatch({ type: 'DELETE_FAIL' });
       }
     }
   };
 
   return (
-    <div>
+    <Container maxWidth="lg" sx={{ mt: 5 }}>
       <Helmet>
         <title>Pedidos</title>
       </Helmet>
-      <h1>Pedidos</h1>
-      {loadingDelete && <LoadingBox></LoadingBox>}
-      {loading ? (
-        <LoadingBox></LoadingBox>
-      ) : error ? (
-        <MessageBox variant="danger">{error}</MessageBox>
-      ) : (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>USUARIOS</th>
-              <th>FECHA</th>
-              <th>TOTAL</th>
-              <th>PAGADO</th>
-              <th>ENTREGADO</th>
-              <th>ACCIONES</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order._id}>
-                <td>{order._id}</td>
-                <td>{order.user ? order.user.name : 'DELETED USER'}</td>
-                <td>{order.createdAt.substring(0, 10)}</td>
-                <td>{order.totalPrice.toFixed(2)}</td>
-                <td>{order.isPaid ? order.paidAt.substring(0, 10) : 'No'}</td>
 
-                <td>
-                  {order.isDelivered
-                    ? order.deliveredAt.substring(0, 10)
-                    : 'No'}
-                </td>
-                <td>
-                  <Button
-                    type="button"
-                    variant="light"
-                    onClick={() => {
-                      navigate(`/order/${order._id}`);
-                    }}
-                  >
-                    Detalles
-                  </Button>
-                  &nbsp;
-                  <Button
-                    type="button"
-                    variant="light"
-                    onClick={() => deleteHandler(order)}
-                  >
-                    Eliminar
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+      <Paper
+        elevation={4}
+        sx={{
+          p: 3,
+          bgcolor: '#1C2E48',
+          color: '#fff',
+          borderRadius: 3,
+          boxShadow: '0 0 12px rgba(0,255,255,0.15)',
+        }}
+      >
+        <Typography
+          variant="h5"
+          sx={{ mb: 3, fontWeight: 'bold', color: '#58f0ff', textAlign: 'center' }}
+        >
+          Lista de Pedidos
+        </Typography>
+
+        {loadingDelete && (
+          <Box textAlign="center" mb={2}>
+            <CircularProgress color="error" />
+          </Box>
+        )}
+
+        {loading ? (
+          <Box textAlign="center">
+            <CircularProgress color="info" />
+          </Box>
+        ) : error ? (
+          <Typography color="error" sx={{ mt: 2 }}>
+            {error}
+          </Typography>
+        ) : (
+          <TableContainer component={Paper} sx={{ bgcolor: '#121e33' }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  {['ID', 'Usuario', 'Fecha', 'Total', 'Pagado', 'Entregado', 'Acciones'].map(
+                    (header) => (
+                      <TableCell key={header} sx={{ color: '#58f0ff', fontWeight: 'bold' }}>
+                        {header}
+                      </TableCell>
+                    )
+                  )}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {orders.map((order) => (
+                  <TableRow key={order._id} hover>
+                    <TableCell sx={{ color: '#ccc' }}>{order._id}</TableCell>
+                    <TableCell sx={{ color: '#fff' }}>
+                      {order.user ? order.user.name : 'Usuario Eliminado'}
+                    </TableCell>
+                    <TableCell sx={{ color: '#ccc' }}>
+                      {order.createdAt.substring(0, 10)}
+                    </TableCell>
+                    <TableCell sx={{ color: '#58f0ff' }}>${order.totalPrice.toFixed(2)}</TableCell>
+                    <TableCell sx={{ color: order.isPaid ? '#25D366' : '#f44336' }}>
+                      {order.isPaid ? order.paidAt.substring(0, 10) : 'No'}
+                    </TableCell>
+                    <TableCell sx={{ color: order.isDelivered ? '#25D366' : '#f44336' }}>
+                      {order.isDelivered ? order.deliveredAt.substring(0, 10) : 'No'}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton
+                        color="info"
+                        onClick={() => navigate(`/order/${order._id}`)}
+                      >
+                        <InfoIcon />
+                      </IconButton>
+                      <IconButton color="error" onClick={() => deleteHandler(order)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Paper>
+    </Container>
   );
 }

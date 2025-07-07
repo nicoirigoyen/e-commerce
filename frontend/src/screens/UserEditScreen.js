@@ -1,13 +1,19 @@
-import axios from 'axios';
 import React, { useContext, useEffect, useReducer, useState } from 'react';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
+import {
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Container,
+  FormControlLabel,
+  TextField,
+  Typography,
+  Paper,
+} from '@mui/material';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 import { toast } from 'react-toastify';
-import LoadingBox from '../components/LoadingBox';
-import MessageBox from '../components/MessageBox';
 import { Store } from '../Store';
 import { getError } from '../utils';
 
@@ -59,10 +65,7 @@ export default function UserEditScreen() {
         setIsAdmin(data.isAdmin);
         dispatch({ type: 'FETCH_SUCCESS' });
       } catch (err) {
-        dispatch({
-          type: 'FETCH_FAIL',
-          payload: getError(err),
-        });
+        dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
     fetchData();
@@ -75,68 +78,121 @@ export default function UserEditScreen() {
       await axios.put(
         `/api/users/${userId}`,
         { _id: userId, name, email, isAdmin },
-        {
-          headers: { Authorization: `Bearer ${userInfo.token}` },
-        }
+        { headers: { Authorization: `Bearer ${userInfo.token}` } }
       );
-      dispatch({
-        type: 'UPDATE_SUCCESS',
-      });
-      toast.success('User updated successfully');
+      dispatch({ type: 'UPDATE_SUCCESS' });
+      toast.success('Usuario actualizado');
       navigate('/admin/users');
-    } catch (error) {
-      toast.error(getError(error));
+    } catch (err) {
+      toast.error(getError(err));
       dispatch({ type: 'UPDATE_FAIL' });
     }
   };
-  return (
-    <Container className="small-container">
-      <Helmet>
-        <title>Editar usuario ${userId}</title>
-      </Helmet>
-      <h1>Editar usuario {userId}</h1>
 
-      {loading ? (
-        <LoadingBox></LoadingBox>
-      ) : error ? (
-        <MessageBox variant="danger">{error}</MessageBox>
-      ) : (
-        <Form onSubmit={submitHandler}>
-          <Form.Group className="mb-3" controlId="name">
-            <Form.Label>Nombre</Form.Label>
-            <Form.Control
+  return (
+    <Container maxWidth="sm" sx={{ mt: 5 }}>
+      <Helmet>
+        <title>Editar usuario</title>
+      </Helmet>
+      <Paper
+        elevation={4}
+        sx={{
+          p: 4,
+          bgcolor: '#1C2E48',
+          color: '#fff',
+          borderRadius: 3,
+          boxShadow: '0 0 12px rgba(0,255,255,0.15)',
+        }}
+      >
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: 'bold', mb: 3, textAlign: 'center', color: '#58f0ff' }}
+        >
+          Editar Usuario
+        </Typography>
+
+        {loading ? (
+          <Box textAlign="center">
+            <CircularProgress color="success" />
+          </Box>
+        ) : error ? (
+          <Typography color="error" sx={{ mt: 2 }}>
+            {error}
+          </Typography>
+        ) : (
+          <Box component="form" onSubmit={submitHandler} noValidate>
+            <TextField
+              fullWidth
+              label="Nombre"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              required
+              margin="normal"
+              InputLabelProps={{ style: { color: 'white' } }}
+              InputProps={{ style: { color: 'white' } }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { borderColor: '#58f0ff' },
+                  '&:hover fieldset': { borderColor: '#58f0ff' },
+                  '&.Mui-focused fieldset': { borderColor: '#58f0ff' },
+                },
+              }}
             />
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="email">
-            <Form.Label>Email</Form.Label>
-            <Form.Control
-              value={email}
+
+            <TextField
+              fullWidth
+              label="Email"
               type="email"
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
+              margin="normal"
+              InputLabelProps={{ style: { color: 'white' } }}
+              InputProps={{ style: { color: 'white' } }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': { borderColor: '#58f0ff' },
+                  '&:hover fieldset': { borderColor: '#58f0ff' },
+                  '&.Mui-focused fieldset': { borderColor: '#58f0ff' },
+                },
+              }}
             />
-          </Form.Group>
 
-          <Form.Check
-            className="mb-3"
-            type="checkbox"
-            id="isAdmin"
-            label="isAdmin"
-            checked={isAdmin}
-            onChange={(e) => setIsAdmin(e.target.checked)}
-          />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isAdmin}
+                  onChange={(e) => setIsAdmin(e.target.checked)}
+                  sx={{ color: '#25D366' }}
+                />
+              }
+              label="Administrador"
+              sx={{ mt: 2 }}
+            />
 
-          <div className="mb-3">
-            <Button disabled={loadingUpdate} type="submit">
-              Enviar
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={loadingUpdate}
+              sx={{
+                mt: 3,
+                bgcolor: '#D12B19',
+                '&:hover': { bgcolor: '#FF3B3B' },
+                fontWeight: 'bold',
+                borderRadius: 2,
+                textTransform: 'uppercase',
+                py: 1.2,
+                boxShadow: '0 0 10px rgba(209,43,25,0.6)',
+              }}
+            >
+              {loadingUpdate ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                'Guardar Cambios'
+              )}
             </Button>
-            {loadingUpdate && <LoadingBox></LoadingBox>}
-          </div>
-        </Form>
-      )}
+          </Box>
+        )}
+      </Paper>
     </Container>
   );
 }

@@ -17,7 +17,6 @@ import {
   IconButton,
   CircularProgress,
   Alert,
-  Button,
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 
@@ -64,10 +63,8 @@ export default function OrderHistoryScreen() {
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(-45deg, #667eea, #764ba2, #6b8dd6, #a471b3)',
-        backgroundSize: '400% 400%',
-        animation: 'gradientBG 15s ease infinite',
-        color: 'white',
+        backgroundColor: '#0a192f',
+        color: '#ffffff',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -78,45 +75,78 @@ export default function OrderHistoryScreen() {
         <title>Historial de Pedidos</title>
       </Helmet>
 
-      <Typography variant="h4" gutterBottom>
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{
+          fontWeight: 'bold',
+          color: '#00fff7',
+          textShadow: '0 0 8px #00fff7',
+        }}
+      >
         Historial de Pedidos
       </Typography>
 
       {loading ? (
-        <CircularProgress color="inherit" />
+        <CircularProgress sx={{ color: '#00fff7', mt: 3 }} />
       ) : error ? (
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error" sx={{ mt: 3 }}>
+          {error}
+        </Alert>
       ) : (
-        <TableContainer component={Paper} sx={{ maxWidth: 1000, mt: 2 }}>
+        <TableContainer
+          component={Paper}
+          sx={{
+            maxWidth: 1100,
+            mt: 3,
+            backgroundColor: '#1c2737',
+            border: '1px solid #00fff7',
+            borderRadius: 2,
+            boxShadow: '0 0 15px #00fff750',
+          }}
+        >
           <Table>
             <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>FECHA</TableCell>
-                <TableCell>TOTAL</TableCell>
-                <TableCell>PAGADO</TableCell>
-                <TableCell>ENTREGADO</TableCell>
-                <TableCell>ACCIONES</TableCell>
+              <TableRow sx={{ backgroundColor: '#122033' }}>
+                <TableCell sx={{ color: '#58f0ff', fontWeight: 'bold' }}>ID</TableCell>
+                <TableCell sx={{ color: '#58f0ff', fontWeight: 'bold' }}>FECHA</TableCell>
+                <TableCell sx={{ color: '#58f0ff', fontWeight: 'bold' }}>TOTAL</TableCell>
+                <TableCell sx={{ color: '#58f0ff', fontWeight: 'bold' }}>PAGADO</TableCell>
+                <TableCell sx={{ color: '#58f0ff', fontWeight: 'bold' }}>ENTREGADO</TableCell>
+                <TableCell sx={{ color: '#58f0ff', fontWeight: 'bold' }}>ACCIONES</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {orders.map((order) => (
-                <TableRow key={order._id}>
-                  <TableCell>{order._id}</TableCell>
-                  <TableCell>{order.createdAt.substring(0, 10)}</TableCell>
-                  <TableCell>${order.totalPrice.toFixed(2)}</TableCell>
-                  <TableCell>
+                <TableRow
+                  key={order._id}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: '#223348',
+                    },
+                  }}
+                >
+                  <TableCell sx={{ color: '#e0e0e0' }}>{order._id}</TableCell>
+                  <TableCell sx={{ color: '#e0e0e0' }}>
+                    {order.createdAt.substring(0, 10)}
+                  </TableCell>
+                  <TableCell sx={{ color: '#e0e0e0' }}>${order.totalPrice.toFixed(2)}</TableCell>
+                  <TableCell sx={{ color: order.isPaid ? '#00e676' : '#ff1744' }}>
                     {order.isPaid ? order.paidAt.substring(0, 10) : 'No'}
                   </TableCell>
-                  <TableCell>
-                    {order.isDelivered
-                      ? order.deliveredAt.substring(0, 10)
-                      : 'No'}
+                  <TableCell sx={{ color: order.isDelivered ? '#00e676' : '#ff1744' }}>
+                    {order.isDelivered ? order.deliveredAt.substring(0, 10) : 'No'}
                   </TableCell>
                   <TableCell>
                     <IconButton
-                      color="primary"
                       onClick={() => navigate(`/order/${order._id}`)}
+                      sx={{
+                        color: '#00fff7',
+                        '&:hover': {
+                          color: '#58f0ff',
+                          transform: 'scale(1.1)',
+                        },
+                      }}
                     >
                       <InfoIcon />
                     </IconButton>
@@ -130,5 +160,3 @@ export default function OrderHistoryScreen() {
     </Box>
   );
 }
-
-

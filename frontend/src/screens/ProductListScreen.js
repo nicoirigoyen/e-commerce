@@ -77,6 +77,13 @@ export default function ProductListScreen() {
           headers: { Authorization: `Bearer ${userInfo.token}` },
         });
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
+
+        // Mostrar toast solo si venimos de crear un producto
+        const wasCreated = localStorage.getItem('productCreated');
+        if (wasCreated) {
+          toast.success('Producto creado correctamente');
+          localStorage.removeItem('productCreated');
+        }
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
@@ -100,7 +107,8 @@ export default function ProductListScreen() {
             headers: { Authorization: `Bearer ${userInfo.token}` },
           }
         );
-        toast.success('Producto creado correctamente');
+        // Guardar bandera en localStorage
+        localStorage.setItem('productCreated', 'true');
         dispatch({ type: 'CREATE_SUCCESS' });
         navigate(`/admin/product/${data.product._id}`);
       } catch (err) {

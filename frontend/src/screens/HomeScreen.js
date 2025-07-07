@@ -2,21 +2,18 @@ import React, { useEffect, useReducer } from 'react';
 import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
 import logger from 'use-reducer-logger';
-import ProductCard  from '../components/ProductCard';
+import ProductCard from '../components/ProductCard';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import FeaturedSection from '../components/FeaturedSection';
-import CategoryDropdown from '../components/CategoryDropdown';
 import { FaWhatsapp } from 'react-icons/fa';
 
 import {
   Container,
   Typography,
   Box,
-  Button,
   Grid,
   Fab,
-  Paper,
   Fade,
   Grow,
 } from '@mui/material';
@@ -60,58 +57,27 @@ const HomeScreen = () => {
         <title>NiTecno</title>
       </Helmet>
 
-      {/* Categorías */}
-      <Fade in timeout={800}>
-        <Paper
-          elevation={3}
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-around',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            p: 2,
-            mb: 4,
-            bgcolor: 'rgba(255,255,255,0.06)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: 3,
-            boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
-          }}
-        >
-          <CategoryDropdown />
-          {['Garantías', 'Nuevo Ingreso', 'Oferta Flash!', 'Preorden', 'Contacto', 'Inicio'].map((text) => (
-            <Button
-              key={text}
-              variant="outlined"
-              color="primary"
-              sx={{
-                m: 1,
-                borderColor: '#6B8DD6',
-                color: '#6B8DD6',
-                fontWeight: '600',
-                textTransform: 'none',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  backgroundColor: '#6B8DD6',
-                  color: '#fff',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
-                },
-              }}
-            >
-              {text}
-            </Button>
-          ))}
-        </Paper>
-      </Fade>
-
-      {/* Sección destacada */}
+      {/* Sección de Novedades o Promos */}
       <Fade in timeout={1000}>
-        <Box>
+        <Box sx={{ mb: 6 }}>
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{
+              color: '#ffffff',
+              fontWeight: 'bold',
+              letterSpacing: 1,
+              textShadow: '0 0 10pxrgb(255, 115, 72)',
+              mb: 2,
+            }}
+          >
+            Novedades y Promos
+          </Typography>
           <FeaturedSection />
         </Box>
       </Fade>
 
-      {/* Productos */}
+      {/* Productos destacados */}
       <Box sx={{ mt: 6 }}>
         <Typography
           variant="h5"
@@ -151,7 +117,6 @@ const HomeScreen = () => {
           </Grid>
         )}
       </Box>
-
 
       {/* WhatsApp flotante */}
       <Fab

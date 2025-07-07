@@ -1,3 +1,4 @@
+// ProductScreen.jsx
 import React, { useState, useEffect, useReducer, useRef, useContext } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams, Link } from 'react-router-dom';
@@ -5,7 +6,6 @@ import {
   Box,
   Grid,
   Card,
-  CardMedia,
   Typography,
   Button,
   Rating as MuiRating,
@@ -63,7 +63,7 @@ function ProductScreen() {
       try {
         const result = await axios.get(`/api/products/slug/${slug}`);
         dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
-        setSelectedImage(result.data.image); // Imagen principal
+        setSelectedImage(result.data.image);
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
@@ -115,241 +115,207 @@ function ProductScreen() {
   if (error) return <MessageBox variant="danger">{error}</MessageBox>;
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, margin: '0 auto' }}>
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, margin: '0 auto', color: '#f0f0f0' }}>
       <Grid container spacing={5}>
-        {/* Imagen principal */}
         <Grid item xs={12} md={6}>
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={selectedImage}
-              src={selectedImage}
-              alt={product.name}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.35, ease: 'easeOut' }}
-              style={{
-                width: '100%',
-                borderRadius: 12,
-                boxShadow: '0 12px 24px rgba(0,0,0,0.2)',
-                objectFit: 'contain',
-                maxHeight: 480,
-                userSelect: 'none',
-              }}
-            />
-          </AnimatePresence>
-          {/* Thumbnails */}
           <Box
             sx={{
-              display: 'flex',
-              mt: 3,
-              gap: 2,
-              overflowX: 'auto',
-              paddingBottom: 1,
+              background: 'radial-gradient(circle at center, #f0c04044 0%, transparent 70%)',
+              borderRadius: 4,
+              p: 2,
+              mb: 2,
             }}
           >
-            {[product.image, ...(product.images || [])].map((img) => (
-              <motion.div
-                key={img}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={selectedImage}
+                src={selectedImage}
+                alt={product.name}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
                 style={{
-                  cursor: 'pointer',
-                  borderRadius: 10,
-                  overflow: 'hidden',
-                  boxShadow:
-                    selectedImage === img
-                      ? '0 0 10px 3px #1976d2'
-                      : '0 2px 8px rgba(0,0,0,0.12)',
-                  border: selectedImage === img ? '3px solid #1976d2' : '2px solid transparent',
-                  flexShrink: 0,
-                  width: 90,
-                  height: 90,
+                  width: '100%',
+                  borderRadius: 12,
+                  boxShadow: '0 12px 24px rgba(0,0,0,0.2)',
+                  objectFit: 'contain',
+                  maxHeight: 480,
                 }}
+              />
+            </AnimatePresence>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 1 }}>
+            {[product.image, ...(product.images || [])].map((img) => (
+              <Box
+                key={img}
                 onClick={() => setSelectedImage(img)}
+                sx={{
+                  cursor: 'pointer',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  border: selectedImage === img ? '2px solid #f0c040' : '2px solid #444',
+                  width: 80,
+                  height: 80,
+                  flexShrink: 0,
+                }}
               >
                 <img
                   src={img}
-                  alt="thumbnail"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    display: 'block',
-                    borderRadius: 10,
-                  }}
-                  draggable={false}
+                  alt="thumb"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
-              </motion.div>
+              </Box>
             ))}
           </Box>
         </Grid>
 
-        {/* Info producto */}
         <Grid item xs={12} md={3}>
           <Typography variant="h4" fontWeight="bold" gutterBottom>
             {product.name}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <MuiRating value={product.rating} precision={0.5} readOnly size="medium" />
-            <Typography sx={{ ml: 1, color: 'text.secondary', fontWeight: 500 }}>
-              {product.numReviews} reseñas
-            </Typography>
+            <MuiRating value={product.rating} precision={0.5} readOnly sx={{ color: '#f0c040' }} />
+            <Typography sx={{ ml: 1, color: '#ccc' }}>{product.numReviews} reseñas</Typography>
           </Box>
-          <Typography variant="h5" color="primary" fontWeight="700" gutterBottom>
+          <Typography variant="h5" sx={{ color: '#f0c040', fontWeight: 'bold' }}>
             ${product.price.toFixed(2)}
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mt: 2, lineHeight: 1.6 }}>
-            {product.description}
-          </Typography>
+          <Typography sx={{ mt: 2, color: '#ccc' }}>{product.description}</Typography>
         </Grid>
 
-        {/* Comprar */}
         <Grid item xs={12} md={3}>
           <Card
             sx={{
               p: 3,
-              boxShadow: '0 8px 20px rgba(25, 118, 210, 0.15)',
-              borderRadius: 4,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-              height: '100%',
-              justifyContent: 'center',
+              bgcolor: '#1a1a1a',
+              border: '1px solid #555',
+              color: '#f0f0f0',
+              borderRadius: 3,
             }}
           >
-            <Typography variant="h6" fontWeight="600">
-              Precio: ${product.price.toFixed(2)}
-            </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="subtitle1" fontWeight="600">
-                Estado:
-              </Typography>
+            <Typography fontWeight="bold">Precio: ${product.price.toFixed(2)}</Typography>
+            <Typography>
+              Estado:{' '}
               {product.countInStock > 0 ? (
-                <Chip
-                  label="En stock"
-                  color="success"
-                  size="medium"
-                  sx={{ fontWeight: 'bold', px: 2 }}
-                />
+                <Chip label="En stock" sx={{ fontWeight: 'bold', background: '#f0c040', color: '#000' }} />
               ) : (
-                <Chip
-                  label="No disponible"
-                  color="error"
-                  size="medium"
-                  sx={{ fontWeight: 'bold', px: 2 }}
-                />
+                <Chip label="Sin stock" color="error" sx={{ fontWeight: 'bold' }} />
               )}
-            </Box>
-            {product.countInStock > 0 ? (
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  size="large"
-                  onClick={addToCartHandler}
-                  sx={{ mt: 1, fontWeight: 'bold', borderRadius: 3 }}
-                >
-                  Agregar al carrito
-                </Button>
-              </motion.div>
-            ) : (
-              <Button
-                variant="outlined"
-                color="error"
-                fullWidth
-                size="large"
-                disabled
-                sx={{ mt: 1, fontWeight: 'bold', borderRadius: 3 }}
-              >
-                Sin stock
-              </Button>
-            )}
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={addToCartHandler}
+              fullWidth
+              disabled={product.countInStock === 0}
+              sx={{
+                mt: 2,
+                background: 'linear-gradient(90deg, #f0c040, #ff8c00)',
+                color: '#000',
+                fontWeight: 'bold',
+                fontSize: '0.8rem',
+                borderRadius: '12px',
+                textTransform: 'uppercase',
+                py: 1.1,
+                letterSpacing: 0.8,
+                fontFamily: 'Orbitron, sans-serif',
+                boxShadow: '0 0 10px rgba(255, 140, 0, 0.5)',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  background: 'linear-gradient(90deg, #ff9c23, #ffb347)',
+                  boxShadow: '0 0 20px rgba(255, 140, 0, 0.8)',
+                  transform: 'scale(1.04)',
+                },
+              }}
+            >
+              {product.countInStock > 0 ? 'Agregar al carrito' : 'Sin stock'}
+            </Button>
           </Card>
         </Grid>
       </Grid>
 
-      {/* Reseñas */}
-      <Box sx={{ mt: 6 }}>
-        <Typography variant="h5" fontWeight="700" gutterBottom ref={reviewsRef}>
+      <Box sx={{ mt: 5 }}>
+        <Typography variant="h5" fontWeight="bold" ref={reviewsRef}>
           Calificaciones
         </Typography>
         {product.reviews.length === 0 ? (
           <MessageBox>No hay calificaciones</MessageBox>
         ) : (
           product.reviews.map((review) => (
-            <Card
-              key={review._id}
-              sx={{
-                mb: 2,
-                p: 2,
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                borderRadius: 3,
-              }}
-            >
-              <Typography fontWeight="bold" variant="subtitle1">
-                {review.name}
-              </Typography>
-              <MuiRating value={review.rating} readOnly precision={0.5} size="small" />
-              <Typography variant="caption" color="text.secondary" gutterBottom>
-                {new Date(review.createdAt).toLocaleDateString()}
-              </Typography>
-              <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
-                {review.comment}
-              </Typography>
+            <Card key={review._id} sx={{ my: 2, p: 2, background: '#2b2b2b', color: '#eee' }}>
+              <Typography fontWeight="bold">{review.name}</Typography>
+              <MuiRating value={review.rating} readOnly size="small" sx={{ color: '#f0c040' }} />
+              <Typography variant="caption">{new Date(review.createdAt).toLocaleDateString()}</Typography>
+              <Typography>{review.comment}</Typography>
             </Card>
           ))
         )}
 
-        {/* Formulario para comentar */}
         <Box sx={{ mt: 4 }}>
           {userInfo ? (
-            <Box component="form" onSubmit={submitHandler} noValidate>
-              <Typography variant="h6" gutterBottom fontWeight="600">
-                Escribe un comentario del producto
+            <Box component="form" onSubmit={submitHandler}>
+              <Typography fontWeight="600" mb={2}>
+                Dejá tu reseña
               </Typography>
               <Select
                 fullWidth
                 value={rating}
                 onChange={(e) => setRating(Number(e.target.value))}
                 displayEmpty
-                sx={{ mb: 2 }}
-                size="small"
+                sx={{ mb: 2, background: '#1a1a1a', color: '#fff' }}
               >
                 <MenuItem value="" disabled>
                   Seleccionar calificación
                 </MenuItem>
-                {[1, 2, 3, 4, 5].map((val) => (
-                  <MenuItem key={val} value={val}>
-                    {val} - {['Pobre', 'Malo', 'Bueno', 'Muy bueno', 'Excelente'][val - 1]}
+                {[1, 2, 3, 4, 5].map((r) => (
+                  <MenuItem key={r} value={r}>
+                    {r} - {['Pobre', 'Malo', 'Bueno', 'Muy bueno', 'Excelente'][r - 1]}
                   </MenuItem>
                 ))}
               </Select>
               <TextField
-                fullWidth
                 multiline
+                fullWidth
                 rows={4}
-                placeholder="Deja tu comentario aquí"
+                placeholder="Escribe tu comentario"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                sx={{ mb: 2 }}
-                size="small"
+                sx={{
+                  mb: 2,
+                  background: '#1a1a1a',
+                  input: { color: '#fff' },
+                  '& .MuiInputBase-root': { color: '#fff' },
+                }}
               />
               <Button
-                variant="contained"
                 type="submit"
+                variant="contained"
                 disabled={loadingCreateReview}
-                sx={{ fontWeight: 'bold', borderRadius: 2 }}
+                sx={{
+                  background: 'linear-gradient(90deg, #f0c040, #ff8c00)',
+                  color: '#000',
+                  fontWeight: 'bold',
+                  fontSize: '0.8rem',
+                  borderRadius: '12px',
+                  textTransform: 'uppercase',
+                  py: 1.1,
+                  letterSpacing: 0.8,
+                  fontFamily: 'Orbitron, sans-serif',
+                  boxShadow: '0 0 10px rgba(255, 140, 0, 0.5)',
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    background: 'linear-gradient(90deg, #ff9c23, #ffb347)',
+                    boxShadow: '0 0 20px rgba(255, 140, 0, 0.8)',
+                    transform: 'scale(1.04)',
+                  },
+                }}
               >
                 Enviar
               </Button>
             </Box>
           ) : (
             <MessageBox>
-              Por favor{' '}
-              <Link to={`/signin?redirect=/product/${product.slug}`}>Registrarse</Link>{' '}
-              para escribir una reseña
+              Por favor <Link to={`/signin?redirect=/product/${product.slug}`}>inicia sesión</Link> para comentar.
             </MessageBox>
           )}
         </Box>

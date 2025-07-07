@@ -191,7 +191,7 @@ function App() {
           }}
         >
           🔥 ¡Envíos gratis en compras mayores a $150.000! — 💳 3 y 6 cuotas sin interés — 📞
-          Consultas por WhatsApp 351‑XXX‑XXXX —
+          Consultas por WhatsApp 351‑227‑8898 —
         </Typography>
 
         {/* Animación marquee */}
@@ -403,22 +403,143 @@ function App() {
               sx={{
                 mt: 3,
                 // ya no dejamos margen porque quitamos el sidebar fijo
-                transition: 'margin-left 0.3s ease',
+                transition: 'margin-left 0.3s ease', 
               }}
             >
             <Routes>
-              <Route path="/" element={<HomeScreen />} />
-              <Route path="/cart" element={<CartScreen />} />
-              <Route path="/signin" element={<SigninScreen />} />
-              <Route path="/signup" element={<SignupScreen />} />
-              <Route path="/product/:slug" element={<ProductScreen />} />
-              <Route path="/servicio-tecnico" element={<ServicioTecnicoScreen />} />
-              
-              <Route path="/admin/products" element={<ProductScreen /* mal */ />} />
-              <Route path="/admin/dashboard" element={<DashboardScreen /* mal */ />} />
-              <Route path="/admin/orders" element={<OrderScreen /* mal */  />} />
-              <Route path="/admin/users" element={<UserEditScreen /* mal */ />} />
-            </Routes>
+            {/* ——— Públicas ——— */}
+            <Route path="/" element={<HomeScreen />} />
+            <Route path="/product/:slug" element={<ProductScreen />} />
+            <Route path="/search" element={<SearchScreen />} />
+            <Route path="/servicio-tecnico" element={<ServicioTecnicoScreen />} />
+            <Route path="/cart" element={<CartScreen />} />
+            <Route path="/signin" element={<SigninScreen />} />
+            <Route path="/signup" element={<SignupScreen />} />
+
+            {/* ——— Protegidas (usuario logueado) ——— */}
+            <Route
+              path="/shipping"
+              element={
+                <ProtectedRoute>
+                  <ShippingAddressScreen />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payment"
+              element={
+                <ProtectedRoute>
+                  <PaymentMethodScreen />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/placeorder"
+              element={
+                <ProtectedRoute>
+                  <PlaceOrderScreen />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/order/:id"
+              element={
+                <ProtectedRoute>
+                  <OrderScreen />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orderhistory"
+              element={
+                <ProtectedRoute>
+                  <OrderHistoryScreen />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfileScreen />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/map"
+              element={
+                <ProtectedRoute>
+                  <MapScreen />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ——— Administración (usuario admin) ——— */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <AdminRoute>
+                  <DashboardScreen />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/products"
+              element={
+                <AdminRoute>
+                  <ProductListScreen />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/product/:id"
+              element={
+                <AdminRoute>
+                  <ProductEditScreen />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/orders"
+              element={
+                <AdminRoute>
+                  <OrderListScreen />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/order/:id"
+              element={
+                <AdminRoute>
+                  <OrderScreen />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <AdminRoute>
+                  <UserListScreen />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/user/:id"
+              element={
+                <AdminRoute>
+                  <UserEditScreen />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/featured"
+              element={
+                <AdminRoute>
+                  <FeaturedItemCreateScreen />
+                </AdminRoute>
+              }
+            />
+          </Routes>
           </Container>
         </main>
 

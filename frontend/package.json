@@ -29,6 +29,8 @@
     "react-scripts": "5.0.0",
     "react-scroll": "^1.9.3",
     "react-slick": "^0.30.3",
+    "react-swipeable-views": "^0.14.0",
+    "react-swipeable-views-utils": "^0.14.0",
     "react-toastify": "^8.2.0",
     "react-tsparticles": "^2.12.2",
     "slick-carousel": "^1.8.1",

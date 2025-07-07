@@ -7,7 +7,6 @@ import { getError } from '../utils';
 import { Helmet } from 'react-helmet-async';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
-
 import {
   Container,
   Form,
@@ -46,7 +45,6 @@ export default function ProductEditScreen() {
   const navigate = useNavigate();
   const params = useParams();
   const { id: productId } = params;
-
   const { state } = useContext(Store);
   const { userInfo } = state;
 
@@ -85,6 +83,52 @@ export default function ProductEditScreen() {
     fetchData();
   }, [productId]);
 
+  const uploadFileHandler = (e, forImages = false) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+
+    img.onload = async () => {
+      if (img.width !== 1200 || img.height !== 1200) {
+        toast.error(
+          'La imagen debe tener exactamente 1200x1200 píxeles. Usá https://www.photopea.com para editarla.'
+        );
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        dispatch({ type: 'UPLOAD_REQUEST' });
+        const { data } = await axios.post('/api/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${userInfo.token}`,
+          },
+        });
+        dispatch({ type: 'UPLOAD_SUCCESS' });
+
+        if (forImages) {
+          setImages([...images, data.secure_url]);
+        } else {
+          setImage(data.secure_url);
+        }
+        toast.success('Imagen subida correctamente. Presioná "Modificar" para guardar.');
+      } catch (err) {
+        toast.error(getError(err));
+        dispatch({ type: 'UPLOAD_FAIL', payload: getError(err) });
+      }
+    };
+  };
+
+  const deleteFileHandler = (fileName) => {
+    setImages(images.filter((x) => x !== fileName));
+    toast.success('Imagen eliminada. Presioná "Modificar" para guardar.');
+  };
+
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
@@ -116,37 +160,6 @@ export default function ProductEditScreen() {
     }
   };
 
-  const uploadFileHandler = async (e, forImages) => {
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-    try {
-      dispatch({ type: 'UPLOAD_REQUEST' });
-      const { data } = await axios.post('/api/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      });
-      dispatch({ type: 'UPLOAD_SUCCESS' });
-
-      if (forImages) {
-        setImages([...images, data.secure_url]);
-      } else {
-        setImage(data.secure_url);
-      }
-      toast.success('Imagen subida. Presioná "Modificar" para guardar.');
-    } catch (err) {
-      toast.error(getError(err));
-      dispatch({ type: 'UPLOAD_FAIL', payload: getError(err) });
-    }
-  };
-
-  const deleteFileHandler = (fileName) => {
-    setImages(images.filter((x) => x !== fileName));
-    toast.success('Imagen eliminada. Presioná "Modificar" para guardar.');
-  };
-
   return (
     <Container className="py-4">
       <Helmet>
@@ -174,6 +187,8 @@ export default function ProductEditScreen() {
           <Form onSubmit={submitHandler}>
             <Row>
               <Col md={6}>
+                {/* Nombre, Slug, Precio, etc */}
+                {/* ... igual que antes ... */}
                 <Form.Group className="mb-3" controlId="name">
                   <Form.Label>Nombre</Form.Label>
                   <Form.Control
@@ -235,7 +250,7 @@ export default function ProductEditScreen() {
 
               <Col md={6}>
                 <Form.Group className="mb-3" controlId="image">
-                  <Form.Label>Imagen principal</Form.Label>
+                  <Form.Label>Imagen principal (1200x1200px)</Form.Label>
                   <Form.Control
                     value={image}
                     onChange={(e) => setImage(e.target.value)}
@@ -245,8 +260,8 @@ export default function ProductEditScreen() {
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId="imageFile">
-                  <Form.Label>Cargar imagen</Form.Label>
-                  <Form.Control type="file" onChange={uploadFileHandler} />
+                  <Form.Label>Cargar imagen principal</Form.Label>
+                  <Form.Control type="file" onChange={(e) => uploadFileHandler(e)} />
                   {loadingUpload && <LoadingBox />}
                 </Form.Group>
 
