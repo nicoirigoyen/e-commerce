@@ -8,8 +8,9 @@ import {
   Divider,
   useTheme,
   useMediaQuery,
+  Typography,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+import AppsIcon from '@mui/icons-material/Apps';
 import CategoryIcon from '@mui/icons-material/Category';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -20,19 +21,18 @@ export default function CategoryDropdown() {
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
 
-  // Responsividad con MUI hooks
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
-    async function fetchCategories() {
+    const fetchCategories = async () => {
       try {
         const { data } = await axios.get('/api/products/categories');
         setCategories(data);
       } catch (err) {
-        console.error('Error obteniendo categorías:', err.message);
+        console.error('Error cargando categorías:', err.message);
       }
-    }
+    };
     fetchCategories();
   }, []);
 
@@ -44,33 +44,37 @@ export default function CategoryDropdown() {
     setAnchorEl(null);
   };
 
-  const handleCategoryClick = (category) => {
-    navigate(`/search?category=${category}`);
+  const handleCategoryClick = (category, subcategory) => {
+    const query = subcategory ? `${category}/${subcategory}` : category;
+    navigate(`/search?category=${encodeURIComponent(query)}`);
     handleClose();
   };
 
   return (
     <>
       <Button
-        startIcon={<MenuIcon />}
+        startIcon={<AppsIcon />}
         onClick={handleClick}
         aria-controls={open ? 'category-menu' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         sx={{
           textTransform: 'none',
-          fontWeight: '700',
-          bgcolor: '#2e3b55',
-          color: '#fff',
-          px: 2,
-          py: 1,
-          borderRadius: 2,
-          minWidth: isMobile ? 100 : 140,
+          fontWeight: 'bold',
+          bgcolor: '#141414',
+          color: '#5ee6ff',
+          border: '1px solid #5ee6ff',
+          borderRadius: 3,
+          px: 2.5,
+          py: 1.2,
+          boxShadow: '0 0 10px #5ee6ff33',
+          fontSize: isMobile ? '0.85rem' : '1rem',
+          transition: '0.3s ease',
           '&:hover': {
-            bgcolor: '#435a8a',
+            bgcolor: '#1b1b1b',
+            color: '#ffffff',
+            boxShadow: '0 0 20px #5ee6ff77',
           },
-          transition: 'background-color 0.3s ease',
-          fontSize: isMobile ? '0.9rem' : '1rem',
         }}
       >
         CATEGORÍAS
@@ -83,13 +87,14 @@ export default function CategoryDropdown() {
         onClose={handleClose}
         PaperProps={{
           sx: {
-            bgcolor: '#fafafa',
-            minWidth: isMobile ? '70vw' : 220,
-            maxHeight: '60vh',
+            bgcolor: '#111',
+            color: '#e0e0e0',
+            border: '1px solid #5ee6ff',
+            borderRadius: 3,
+            boxShadow: '0 6px 30px #5ee6ff33',
+            minWidth: isMobile ? '75vw' : 260,
+            maxHeight: '65vh',
             overflowY: 'auto',
-            boxShadow:
-              '0px 3px 10px rgba(0,0,0,0.15), 0px 6px 20px rgba(0,0,0,0.1)',
-            borderRadius: 2,
           },
         }}
         MenuListProps={{
@@ -105,36 +110,65 @@ export default function CategoryDropdown() {
         }}
       >
         {categories.length === 0 ? (
-          <MenuItem disabled sx={{ fontStyle: 'italic' }}>
-            No hay categorías
+          <MenuItem disabled>
+            <em>No hay categorías disponibles</em>
           </MenuItem>
         ) : (
-          categories.map((category) => (
-            <MenuItem
-              key={category}
-              onClick={() => handleCategoryClick(category)}
-              sx={{
-                px: 2,
-                py: 1,
-                transition: 'background-color 0.2s',
-                '&:hover': {
-                  bgcolor: '#e3e9f3',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ minWidth: 36 }}>
-                <CategoryIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText
-                primary={category}
-                primaryTypographyProps={{
-                  fontSize: isMobile ? '0.9rem' : '1rem',
-                }}
-              />
-            </MenuItem>
+          categories.map((cat) => (
+            <div key={cat.nombre}>
+              <MenuItem disabled sx={{ opacity: 0.85 }}>
+                <ListItemIcon>
+                  <CategoryIcon sx={{ color: '#5ee6ff' }} />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography fontWeight={600} color="#5ee6ff">
+                      {cat.nombre}
+                    </Typography>
+                  }
+                />
+              </MenuItem>
+
+              {cat.subcategorias && cat.subcategorias.length > 0 ? (
+                cat.subcategorias.map((subcat) => (
+                  <MenuItem
+                    key={subcat}
+                    onClick={() => handleCategoryClick(cat.nombre, subcat)}
+                    sx={{
+                      pl: 6,
+                      py: 1,
+                      fontSize: '0.95rem',
+                      '&:hover': {
+                        bgcolor: '#1a1a1a',
+                        color: '#5ee6ff',
+                      },
+                    }}
+                  >
+                    {subcat}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem
+                  onClick={() => handleCategoryClick(cat.nombre)}
+                  sx={{
+                    pl: 4,
+                    py: 1,
+                    fontStyle: 'italic',
+                    '&:hover': {
+                      bgcolor: '#1a1a1a',
+                      color: '#5ee6ff',
+                    },
+                  }}
+                >
+                  Ver todos
+                </MenuItem>
+              )}
+
+              <Divider sx={{ my: 1, borderColor: '#2b2b2b' }} />
+            </div>
           ))
         )}
-        <Divider />
+
         <MenuItem
           onClick={() => {
             navigate('/search');
@@ -144,13 +178,14 @@ export default function CategoryDropdown() {
             fontWeight: 700,
             px: 2,
             py: 1,
-            '&:hover': {
-              bgcolor: '#e3e9f3',
-            },
             fontSize: isMobile ? '0.95rem' : '1.05rem',
+            '&:hover': {
+              bgcolor: '#1a1a1a',
+              color: '#5ee6ff',
+            },
           }}
         >
-          <ListItemText primary="Ver todos" />
+          Ver todos los productos
         </MenuItem>
       </Menu>
     </>

@@ -52,6 +52,10 @@ import logo from './logo.svg';
 import AnimatedBackground from './components/AnimatedBackground';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import SidebarCategoryAccordion from './components/SidebarCategoryAccordion';
+import SuccessScreen from './screens/SuccessScreen';
+import FailureScreen from './screens/FailureScreen';
+import PendingScreen from './screens/PendingScreen';
 
 function App() {
   const { state, dispatch: ctxDispatch } = useContext(Store);
@@ -86,9 +90,6 @@ function App() {
       <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
         Categorías
       </Typography>
-
-      {/* Secciones PC / Notebook / Componentes... (las que ya tenés) */}
-      {/* Copiá tal cual lo que ya tenés dentro del Drawer acá */}
 
       {/* Servicio Técnico */}
       <List sx={{ mt: 3 }}>
@@ -221,7 +222,7 @@ function App() {
         }}
       >
         <ToastContainer position="bottom-center" limit={1} />
-
+        
         <AppBar position="static" sx={{ backgroundColor: '#1F2E4A' }}>
           {/*!isMobile && <CategoryMenu />*/} 
           {/* Banner animado opcional */}
@@ -262,14 +263,30 @@ function App() {
             </Drawer>
 
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'flex-end', flex: 1 }}>
-              <Button color="inherit" component={Link} to="/cart" sx={{ position: 'relative' }}>
-                Carrito
-                {cart.cartItems.length > 0 && (
-                  <Badge
-                    badgeContent={cart.cartItems.reduce((a, c) => a + c.quantity, 0)}
-                    sx={{ '& .MuiBadge-badge': { backgroundColor: '#25D366', color: '#fff', fontSize: '0.75rem' } }}
-                  />
-                )}
+              <Button
+                color="inherit"
+                component={Link}
+                to="/cart"
+                sx={{ position: 'relative' }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <span>Carrito</span>
+                  {cart.cartItems.length > 0 && (
+                    <Badge
+                      badgeContent={cart.cartItems.reduce((a, c) => a + c.quantity, 0)}
+                      sx={{
+                        '& .MuiBadge-badge': {
+                          backgroundColor: '#25D366',
+                          color: '#fff',
+                          fontSize: '0.75rem',
+                          minWidth: 18,
+                          height: 18,
+                          padding: '0 6px',
+                        },
+                      }}
+                    />
+                  )}
+                </Box>
               </Button>
               {userInfo ? (
                 <>
@@ -303,7 +320,6 @@ function App() {
           >
             <Box
               role="presentation"
-              onClick={() => setSidebarIsOpen(false)}
               sx={{
                 width: { xs: '100%', sm: 320 },
                 bgcolor: '#1C2E48',
@@ -312,64 +328,9 @@ function App() {
                 padding: 2,
               }}
             >
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-                Categorías
-              </Typography>
-
               {/* Sección PC */}
-              <Accordion sx={{ bgcolor: 'transparent', color: 'white' }}>
-                <AccordionSummary expandIcon={<MenuIcon sx={{ color: '#25D366' }} />}>
-                  <Typography sx={{ fontWeight: 'bold' }}>PC</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <List>
-                    <ListItem button component={Link} to="/search?category=Gaming">
-                      <ListItemText primary="Gaming" />
-                    </ListItem>
-                    <ListItem button component={Link} to="/search?category=Escritorio">
-                      <ListItemText primary="Escritorio" />
-                    </ListItem>
-                  </List>
-                </AccordionDetails>
-              </Accordion>
-
-              {/* Sección Notebook */}
-              <Accordion sx={{ bgcolor: 'transparent', color: 'white' }}>
-                <AccordionSummary expandIcon={<MenuIcon sx={{ color: '#25D366' }} />}>
-                  <Typography sx={{ fontWeight: 'bold' }}>Notebook</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <List>
-                    <ListItem button component={Link} to="/search?category=Notebook-Gaming">
-                      <ListItemText primary="Gaming" />
-                    </ListItem>
-                    <ListItem button component={Link} to="/search?category=Notebook-Uso-General">
-                      <ListItemText primary="Uso General" />
-                    </ListItem>
-                  </List>
-                </AccordionDetails>
-              </Accordion>
-
-              {/* Sección Componentes */}
-              <Accordion sx={{ bgcolor: 'transparent', color: 'white' }}>
-                <AccordionSummary expandIcon={<MenuIcon sx={{ color: '#25D366' }} />}>
-                  <Typography sx={{ fontWeight: 'bold' }}>Componentes</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <List>
-                    <ListItem button component={Link} to="/search?category=Procesadores">
-                      <ListItemText primary="Procesadores" />
-                    </ListItem>
-                    <ListItem button component={Link} to="/search?category=PlacasDeVideo">
-                      <ListItemText primary="Placas de Video" />
-                    </ListItem>
-                    <ListItem button component={Link} to="/search?category=MemoriasRAM">
-                      <ListItemText primary="Memorias RAM" />
-                    </ListItem>
-                  </List>
-                </AccordionDetails>
-              </Accordion>
-
+              <SidebarCategoryAccordion />
+              
               {/* Servicio Técnico */}
               <List sx={{ mt: 3 }}>
                 <ListItem
@@ -377,11 +338,14 @@ function App() {
                   component={Link}
                   to="/servicio-tecnico"
                   sx={{
-                    bgcolor: '#D12B19',
+                    bgcolor: '#FF3B3B',
+                    color: '#fff',
                     borderRadius: 1,
+                    transition: 'transform 0.15s ease-in-out',
                     '&:hover': {
                       bgcolor: '#FF3B3B',
                       color: '#fff',
+                      transform: 'scale(1.015)', 
                     },
                   }}
                 >
@@ -539,6 +503,9 @@ function App() {
                 </AdminRoute>
               }
             />
+            <Route path="/success" element={<SuccessScreen />} />
+            <Route path="/failure" element={<FailureScreen />} />
+            <Route path="/pending" element={<PendingScreen />} />
           </Routes>
           </Container>
         </main>

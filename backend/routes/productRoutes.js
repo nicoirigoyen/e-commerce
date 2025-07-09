@@ -136,14 +136,15 @@ productRouter.get(
   '/search',
   expressAsyncHandler(async (req, res) => {
     const { query } = req;
-    const pageSize = query.pageSize || PAGE_SIZE;
-    const page = query.page || 1;
-    const category = query.category || '';
+    const pageSize = Number(query.pageSize) || 6;
+    const page = Number(query.page) || 1;
+    const rawCategory = decodeURIComponent(query.category || 'all').trim();
     const price = query.price || '';
     const rating = query.rating || '';
     const order = query.order || '';
     const searchQuery = query.query || '';
 
+    // Filtro por texto
     const queryFilter =
       searchQuery && searchQuery !== 'all'
         ? {
@@ -153,7 +154,26 @@ productRouter.get(
             },
           }
         : {};
-    const categoryFilter = category && category !== 'all' ? { category } : {};
+
+    // Filtro por categoría y subcategoría
+    let categoryFilter = {};
+    if (rawCategory && rawCategory !== 'all') {
+      const parts = rawCategory.split('/').map((p) => p.trim());
+
+      // Si se pasa subcategoría también (ej: "Monitores/27 pulgadas")
+      if (parts.length === 2) {
+        categoryFilter = {
+          category: new RegExp(`^${parts[0]}`, 'i'), // busca que empiece con "Monitores"
+          subcategory: new RegExp(`${parts[1]}`, 'i'), // contiene "27 pulgadas"
+        };
+      } else {
+        // Si solo se pasa categoría
+        categoryFilter = {
+          category: new RegExp(`^${parts[0]}`, 'i'), // Monitores, etc
+        };
+      }
+    }
+
     const ratingFilter =
       rating && rating !== 'all'
         ? {
@@ -162,16 +182,17 @@ productRouter.get(
             },
           }
         : {};
+
     const priceFilter =
       price && price !== 'all'
         ? {
-            // 1-50
             price: {
               $gte: Number(price.split('-')[0]),
               $lte: Number(price.split('-')[1]),
             },
           }
         : {};
+
     const sortOrder =
       order === 'featured'
         ? { featured: -1 }
@@ -185,6 +206,7 @@ productRouter.get(
         ? { createdAt: -1 }
         : { _id: -1 };
 
+    // Buscar productos
     const products = await Product.find({
       ...queryFilter,
       ...categoryFilter,
@@ -201,6 +223,7 @@ productRouter.get(
       ...priceFilter,
       ...ratingFilter,
     });
+
     res.send({
       products,
       countProducts,
@@ -210,13 +233,34 @@ productRouter.get(
   })
 );
 
+
 productRouter.get(
   '/categories',
   expressAsyncHandler(async (req, res) => {
-    const categories = await Product.find().distinct('category');
-    res.send(categories);
+    const products = await Product.find({}, 'category subcategory');
+
+    const map = {};
+
+    products.forEach((p) => {
+      const main = p.category;
+      const sub = p.subcategory;
+
+      if (!main) return;
+      if (!map[main]) map[main] = new Set();
+      if (sub) map[main].add(sub);
+    });
+
+    const structured = Object.entries(map).map(([nombre, subs]) => ({
+      nombre,
+      subcategorias: Array.from(subs).sort(),
+    }));
+
+    structured.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+    res.send(structured);
   })
 );
+
 
 productRouter.get('/slug/:slug', async (req, res) => {
   const product = await Product.findOne({ slug: req.params.slug });
@@ -234,5 +278,6 @@ productRouter.get('/:id', async (req, res) => {
     res.status(404).send({ message: 'Producto No Encontrado' });
   }
 });
+
 
 export default productRouter;

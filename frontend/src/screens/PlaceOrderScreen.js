@@ -41,37 +41,55 @@ export default function PlaceOrderScreen() {
   cart.taxPrice = round2(0.15 * cart.itemsPrice);
   cart.totalPrice = cart.itemsPrice + cart.shippingPrice + cart.taxPrice;
 
-  const placeOrderHandler = async () => {
+const placeOrderHandler = async () => {
+  if (cart.paymentMethod === 'MercadoPago') {
     try {
-      dispatch({ type: 'CREATE_REQUEST' });
+      const { data } = await Axios.post('/api/payments/create_preference', {
+        items: cart.cartItems,
+        shippingAddress: cart.shippingAddress,
+      });
 
-      const { data } = await Axios.post(
-        '/api/orders',
-        {
-          orderItems: cart.cartItems,
-          shippingAddress: cart.shippingAddress,
-          paymentMethod: cart.paymentMethod,
-          itemsPrice: cart.itemsPrice,
-          shippingPrice: cart.shippingPrice,
-          taxPrice: cart.taxPrice,
-          totalPrice: cart.totalPrice,
-        },
-        {
-          headers: {
-            authorization: `Bearer ${userInfo.token}`,
-          },
-        }
-      );
-
-      ctxDispatch({ type: 'CART_CLEAR' });
-      dispatch({ type: 'CREATE_SUCCESS' });
-      localStorage.removeItem('cartItems');
-      navigate(`/order/${data.order._id}`);
-    } catch (err) {
-      dispatch({ type: 'CREATE_FAIL' });
-      toast.error(getError(err));
+      if (data.id) {
+        window.location.href = `https://www.mercadopago.com.ar/checkout/v1/redirect?preference_id=${data.id}`;
+      }
+    } catch (error) {
+      toast.error('Error al iniciar el pago con Mercado Pago');
     }
-  };
+    return;
+  }
+
+  // Continúa con el flujo normal para otros métodos
+  try {
+    dispatch({ type: 'CREATE_REQUEST' });
+
+    const { data } = await Axios.post(
+      '/api/orders',
+      {
+        orderItems: cart.cartItems,
+        shippingAddress: cart.shippingAddress,
+        paymentMethod: cart.paymentMethod,
+        itemsPrice: cart.itemsPrice,
+        shippingPrice: cart.shippingPrice,
+        taxPrice: cart.taxPrice,
+        totalPrice: cart.totalPrice,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${userInfo.token}`,
+        },
+      }
+    );
+
+    ctxDispatch({ type: 'CART_CLEAR' });
+    dispatch({ type: 'CREATE_SUCCESS' });
+    localStorage.removeItem('cartItems');
+    navigate(`/order/${data.order._id}`);
+  } catch (err) {
+    dispatch({ type: 'CREATE_FAIL' });
+    toast.error(getError(err));
+  }
+};
+
 
   useEffect(() => {
     if (!cart.paymentMethod) {
@@ -200,14 +218,26 @@ export default function PlaceOrderScreen() {
                       onClick={placeOrderHandler}
                       disabled={cart.cartItems.length === 0}
                       style={{
-                        backgroundColor: '#00c2ff',
-                        color: '#000',
+                        backgroundColor: '#ffffff',
+                        color: '#0052cc',
                         fontWeight: 'bold',
-                        border: 'none',
+                        border: '1px solid #0077ff',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '10px',
+                        padding: '10px',
                       }}
                     >
-                      Realizar pedido
+                      <img
+                        src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.21.1/mercado-pago/logo__large@2x.png"
+                        alt="Mercado Pago"
+                        style={{ height: '24px' }}
+                      />
+                      Pagar con Mercado Pago
                     </Button>
+
                   </div>
                   {loading && <LoadingBox />}
                 </ListGroup.Item>

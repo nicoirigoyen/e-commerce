@@ -1,13 +1,10 @@
-// components/SearchBox.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { InputBase, IconButton, Paper } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { motion } from 'framer-motion';
 
 export default function SearchBox() {
   const [query, setQuery] = useState('');
-  const [focused, setFocused] = useState(false);
   const navigate = useNavigate();
 
   const submitHandler = (e) => {
@@ -18,37 +15,38 @@ export default function SearchBox() {
   };
 
   return (
-    <motion.div
-      initial={{ width: 200 }}
-      animate={{ width: focused ? 350 : 200 }}
-      transition={{ duration: 0.3 }}
+    <Paper
+      component="form"
+      onSubmit={submitHandler}
+      sx={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        borderRadius: 5,
+        boxShadow: 3,
+        px: 2,
+        py: 0.5,
+        backgroundColor: '#1a1a1a',
+        color: '#fff',
+      }}
     >
-      <Paper
-        component="form"
-        onSubmit={submitHandler}
+      <InputBase
         sx={{
-          p: '2px 8px',
-          display: 'flex',
-          alignItems: 'center',
-          borderRadius: 5,
-          boxShadow: 3,
-          backgroundColor: '#fff',
+          ml: 1,
+          flex: 1,
+          color: 'inherit',
+          '::placeholder': {
+            color: '#ccc',
+          },
         }}
-        elevation={focused ? 5 : 2}
-      >
-        <InputBase
-          sx={{ ml: 1, flex: 1 }}
-          placeholder="Buscar productos..."
-          inputProps={{ 'aria-label': 'buscar productos' }}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <IconButton type="submit" sx={{ p: '10px' }} aria-label="buscar">
-          <SearchIcon />
-        </IconButton>
-      </Paper>
-    </motion.div>
+        placeholder="Buscar productos..."
+        inputProps={{ 'aria-label': 'buscar productos' }}
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
+      <IconButton type="submit" sx={{ p: '10px', color: '#25D366' }} aria-label="buscar">
+        <SearchIcon />
+      </IconButton>
+    </Paper>
   );
 }

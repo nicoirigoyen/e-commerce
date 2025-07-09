@@ -31,7 +31,6 @@ function reducer(state, action) {
       return { ...state, loadingPay: false };
     case 'PAY_RESET':
       return { ...state, loadingPay: false, successPay: false };
-
     case 'DELIVER_REQUEST':
       return { ...state, loadingDeliver: true };
     case 'DELIVER_SUCCESS':
@@ -39,15 +38,12 @@ function reducer(state, action) {
     case 'DELIVER_FAIL':
       return { ...state, loadingDeliver: false };
     case 'DELIVER_RESET':
-      return {
-        ...state,
-        loadingDeliver: false,
-        successDeliver: false,
-      };
+      return { ...state, loadingDeliver: false, successDeliver: false };
     default:
       return state;
   }
 }
+
 export default function OrderScreen() {
   const { state } = useContext(Store);
   const { userInfo } = state;
@@ -86,9 +82,7 @@ export default function OrderScreen() {
           },
         ],
       })
-      .then((orderID) => {
-        return orderID;
-      });
+      .then((orderID) => orderID);
   }
 
   function onApprove(data, actions) {
@@ -103,13 +97,14 @@ export default function OrderScreen() {
           }
         );
         dispatch({ type: 'PAY_SUCCESS', payload: data });
-        toast.success('Order is paid');
+        toast.success('Pedido pagado');
       } catch (err) {
         dispatch({ type: 'PAY_FAIL', payload: getError(err) });
         toast.error(getError(err));
       }
     });
   }
+
   function onError(err) {
     toast.error(getError(err));
   }
@@ -127,9 +122,7 @@ export default function OrderScreen() {
       }
     };
 
-    if (!userInfo) {
-      return navigate('/login');
-    }
+    if (!userInfo) return navigate('/login');
     if (
       !order._id ||
       successPay ||
@@ -137,12 +130,8 @@ export default function OrderScreen() {
       (order._id && order._id !== orderId)
     ) {
       fetchOrder();
-      if (successPay) {
-        dispatch({ type: 'PAY_RESET' });
-      }
-      if (successDeliver) {
-        dispatch({ type: 'DELIVER_RESET' });
-      }
+      if (successPay) dispatch({ type: 'PAY_RESET' });
+      if (successDeliver) dispatch({ type: 'DELIVER_RESET' });
     } else {
       const loadPaypalScript = async () => {
         const { data: clientId } = await axios.get('/api/keys/paypal', {
@@ -150,24 +139,13 @@ export default function OrderScreen() {
         });
         paypalDispatch({
           type: 'resetOptions',
-          value: {
-            'client-id': clientId,
-            currency: 'ARS',
-          },
+          value: { 'client-id': clientId, currency: 'ARS' },
         });
         paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
       };
       loadPaypalScript();
     }
-  }, [
-    order,
-    userInfo,
-    orderId,
-    navigate,
-    paypalDispatch,
-    successPay,
-    successDeliver,
-  ]);
+  }, [order, userInfo, orderId, navigate, paypalDispatch, successPay, successDeliver]);
 
   async function deliverOrderHandler() {
     try {
@@ -180,7 +158,7 @@ export default function OrderScreen() {
         }
       );
       dispatch({ type: 'DELIVER_SUCCESS', payload: data });
-      toast.success('Order is delivered');
+      toast.success('Pedido entregado');
     } catch (err) {
       toast.error(getError(err));
       dispatch({ type: 'DELIVER_FAIL' });
@@ -188,48 +166,51 @@ export default function OrderScreen() {
   }
 
   return loading ? (
-    <LoadingBox></LoadingBox>
+    <LoadingBox />
   ) : error ? (
     <MessageBox variant="danger">{error}</MessageBox>
   ) : (
-    <div>
+    <div style={{ color: '#eee' }}>
       <Helmet>
         <title>Pedido {orderId}</title>
       </Helmet>
       <h1 className="my-3">Pedido {orderId}</h1>
       <Row>
         <Col md={8}>
-          <Card className="mb-3">
+          <Card className="mb-3" style={{ backgroundColor: '#111827cc' }}>
             <Card.Body>
-              <Card.Title>Transporte</Card.Title>
+              <Card.Title style={{ color: '#58f0ff' }}>Transporte</Card.Title>
               <Card.Text>
                 <strong>Nombre:</strong> {order.shippingAddress.fullName} <br />
-                <strong>Dirección: </strong> {order.shippingAddress.address},
-                {order.shippingAddress.city}, {order.shippingAddress.postalCode}
-                ,{order.shippingAddress.country}
-                &nbsp;
-                {order.shippingAddress.location &&
-                  order.shippingAddress.location.lat && (
+                <strong>Dirección:</strong> {order.shippingAddress.address},{' '}
+                {order.shippingAddress.city}, {order.shippingAddress.postalCode},{' '}
+                {order.shippingAddress.country}
+                {order.shippingAddress.location?.lat && (
+                  <>
+                    &nbsp;
                     <a
-                      target="_new"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       href={`https://maps.google.com?q=${order.shippingAddress.location.lat},${order.shippingAddress.location.lng}`}
                     >
-                      Ver en GoogleMaps
+                      Ver en Google Maps
                     </a>
-                  )}
+                  </>
+                )}
               </Card.Text>
               {order.isDelivered ? (
                 <MessageBox variant="success">
                   Entregado en {order.deliveredAt}
                 </MessageBox>
               ) : (
-                <MessageBox variant="danger">No Entregado</MessageBox>
+                <MessageBox variant="warning">No entregado</MessageBox>
               )}
             </Card.Body>
           </Card>
-          <Card className="mb-3">
+
+          <Card className="mb-3" style={{ backgroundColor: '#111827cc' }}>
             <Card.Body>
-              <Card.Title>Pago</Card.Title>
+              <Card.Title style={{ color: '#58f0ff' }}>Pago</Card.Title>
               <Card.Text>
                 <strong>Forma de pago:</strong> {order.paymentMethod}
               </Card.Text>
@@ -238,29 +219,33 @@ export default function OrderScreen() {
                   Pagado el {order.paidAt}
                 </MessageBox>
               ) : (
-                <MessageBox variant="danger">No pagado</MessageBox>
+                <MessageBox variant="warning">No pagado</MessageBox>
               )}
             </Card.Body>
           </Card>
 
-          <Card className="mb-3">
+          <Card className="mb-3" style={{ backgroundColor: '#111827cc' }}>
             <Card.Body>
-              <Card.Title>Productos</Card.Title>
+              <Card.Title style={{ color: '#58f0ff' }}>Productos</Card.Title>
               <ListGroup variant="flush">
                 {order.orderItems.map((item) => (
-                  <ListGroup.Item key={item._id}>
+                  <ListGroup.Item
+                    key={item._id}
+                    style={{ backgroundColor: '#1f2937', color: '#eee' }}
+                  >
                     <Row className="align-items-center">
                       <Col md={6}>
                         <img
                           src={item.image}
                           alt={item.name}
                           className="img-fluid rounded img-thumbnail"
-                        ></img>{' '}
-                        <Link to={`/product/${item.slug}`}>{item.name}</Link>
+                          style={{ maxWidth: '80px', marginRight: '10px' }}
+                        />
+                        <Link to={`/product/${item.slug}`} className="text-neon">
+                          {item.name}
+                        </Link>
                       </Col>
-                      <Col md={3}>
-                        <span>{item.quantity}</span>
-                      </Col>
+                      <Col md={3}>{item.quantity}</Col>
                       <Col md={3}>${item.price}</Col>
                     </Row>
                   </ListGroup.Item>
@@ -269,60 +254,77 @@ export default function OrderScreen() {
             </Card.Body>
           </Card>
         </Col>
+
         <Col md={4}>
-          <Card className="mb-3">
+          <Card className="mb-3" style={{ backgroundColor: '#1f2937' }}>
             <Card.Body>
-              <Card.Title>Resumen del pedido</Card.Title>
+              <Card.Title style={{ color: '#58f0ff' }}>Resumen del pedido</Card.Title>
               <ListGroup variant="flush">
-                <ListGroup.Item>
+                <ListGroup.Item style={{ backgroundColor: '#111827', color: '#eee' }}>
                   <Row>
                     <Col>Productos</Col>
                     <Col>${order.itemsPrice.toFixed(2)}</Col>
                   </Row>
                 </ListGroup.Item>
-                <ListGroup.Item>
+                <ListGroup.Item style={{ backgroundColor: '#111827', color: '#eee' }}>
                   <Row>
                     <Col>Transporte</Col>
                     <Col>${order.shippingPrice.toFixed(2)}</Col>
                   </Row>
                 </ListGroup.Item>
-                <ListGroup.Item>
+                <ListGroup.Item style={{ backgroundColor: '#111827', color: '#eee' }}>
                   <Row>
                     <Col>Impuesto</Col>
                     <Col>${order.taxPrice.toFixed(2)}</Col>
                   </Row>
                 </ListGroup.Item>
-                <ListGroup.Item>
+                <ListGroup.Item style={{ backgroundColor: '#111827', color: '#eee' }}>
                   <Row>
-                    <Col>
-                      <strong> Total del pedido</strong>
-                    </Col>
-                    <Col>
-                      <strong>${order.totalPrice.toFixed(2)}</strong>
-                    </Col>
+                    <Col><strong>Total</strong></Col>
+                    <Col><strong>${order.totalPrice.toFixed(2)}</strong></Col>
                   </Row>
                 </ListGroup.Item>
+
                 {!order.isPaid && (
-                  <ListGroup.Item>
+                  <ListGroup.Item style={{ backgroundColor: '#111827' }}>
                     {isPending ? (
                       <LoadingBox />
                     ) : (
-                      <div>
-                        <PayPalButtons
-                          createOrder={createOrder}
-                          onApprove={onApprove}
-                          onError={onError}
-                        ></PayPalButtons>
-                      </div>
+                      <PayPalButtons
+                        createOrder={createOrder}
+                        onApprove={onApprove}
+                        onError={onError}
+                      />
                     )}
-                    {loadingPay && <LoadingBox></LoadingBox>}
+                    {loadingPay && <LoadingBox />}
                   </ListGroup.Item>
                 )}
+
                 {userInfo.isAdmin && order.isPaid && !order.isDelivered && (
-                  <ListGroup.Item>
-                    {loadingDeliver && <LoadingBox></LoadingBox>}
+                  <ListGroup.Item style={{ backgroundColor: '#111827' }}>
+                    {loadingDeliver && <LoadingBox />}
                     <div className="d-grid">
-                      <Button type="button" onClick={deliverOrderHandler}>
+                      <Button
+                        type="button"
+                        onClick={deliverOrderHandler}
+                        style={{
+                          backgroundColor: '#1E88E5',
+                          color: '#fff',
+                          fontWeight: 'bold',
+                          borderRadius: '12px',
+                          padding: '12px 20px',
+                          fontSize: '1rem',
+                          transition: 'all 0.2s ease-in-out',
+                        }}
+                        onMouseOver={(e) => {
+                          e.target.style.transform = 'scale(1.015)';
+                          e.target.style.backgroundColor = '#1565C0';
+                        }}
+                        onMouseOut={(e) => {
+                          e.target.style.transform = 'scale(1)';
+                          e.target.style.backgroundColor = '#1E88E5';
+                        }}
+                      >
                         Entregar pedido
                       </Button>
                     </div>

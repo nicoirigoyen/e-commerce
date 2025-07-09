@@ -6,10 +6,11 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@mercadopago/sdk-react": "^1.0.3",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "@paypal/react-paypal-js": "^7.6.0",
-    "@react-google-maps/api": "^2.7.0",
+    "@react-google-maps/api": "^2.17.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.24.0",

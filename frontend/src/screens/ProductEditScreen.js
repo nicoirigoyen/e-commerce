@@ -56,7 +56,8 @@ export default function ProductEditScreen() {
   const [price, setPrice] = useState('');
   const [image, setImage] = useState('');
   const [images, setImages] = useState([]);
-  const [category, setCategory] = useState('');
+  const [mainCategory, setMainCategory] = useState('');
+  const [subCategory, setSubCategory] = useState('');
   const [countInStock, setCountInStock] = useState('');
   const [brand, setBrand] = useState('');
   const [description, setDescription] = useState('');
@@ -71,7 +72,9 @@ export default function ProductEditScreen() {
         setPrice(data.price);
         setImage(data.image);
         setImages(data.images);
-        setCategory(data.category);
+        const [main, sub] = data.category.split('/');
+        setMainCategory(main);
+        setSubCategory(sub);
         setCountInStock(data.countInStock);
         setBrand(data.brand);
         setDescription(data.description);
@@ -142,7 +145,7 @@ export default function ProductEditScreen() {
           price,
           image,
           images,
-          category,
+          category: `${mainCategory}/${subCategory}`,
           brand,
           countInStock,
           description,
@@ -187,8 +190,6 @@ export default function ProductEditScreen() {
           <Form onSubmit={submitHandler}>
             <Row>
               <Col md={6}>
-                {/* Nombre, Slug, Precio, etc */}
-                {/* ... igual que antes ... */}
                 <Form.Group className="mb-3" controlId="name">
                   <Form.Label>Nombre</Form.Label>
                   <Form.Control
@@ -237,14 +238,102 @@ export default function ProductEditScreen() {
                     required
                   />
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="category">
-                  <Form.Label>Categoría</Form.Label>
-                  <Form.Control
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
+
+                <Form.Group className="mb-3" controlId="mainCategory">
+                  <Form.Label>Categoría principal</Form.Label>
+                  <Form.Select
+                    value={mainCategory}
+                    onChange={(e) => {
+                      setMainCategory(e.target.value);
+                      setSubCategory('');
+                    }}
                     className="bg-dark text-light border-secondary"
-                    required
-                  />
+                  >
+                    <option value="">Seleccionar</option>
+                    <option value="Componentes">Componentes</option>
+                    <option value="Periféricos">Periféricos</option>
+                    <option value="Monitores">Monitores</option>
+                    <option value="Audio">Audio</option>
+                    <option value="Accesorios">Accesorios</option>
+                    <option value="Redes">Redes</option>
+                    <option value="Almacenamiento">Almacenamiento</option>
+                  </Form.Select>
+                </Form.Group>
+
+                <Form.Group className="mb-3" controlId="subCategory">
+                  <Form.Label>Subcategoría</Form.Label>
+                  <Form.Select
+                    value={subCategory}
+                    onChange={(e) => setSubCategory(e.target.value)}
+                    className="bg-dark text-light border-secondary"
+                    disabled={!mainCategory}
+                  >
+                    <option value="">Seleccionar</option>
+
+                    {mainCategory === 'Componentes' && (
+                      <>
+                        <option value="Procesadores">Procesadores</option>
+                        <option value="Placas Madre">Placas Madre</option>
+                        <option value="Memorias RAM">Memorias RAM</option>
+                        <option value="Placas de Video">Placas de Video</option>
+                        <option value="Fuentes">Fuentes</option>
+                        <option value="Gabinetes">Gabinetes</option>
+                        <option value="Coolers">Coolers</option>
+                      </>
+                    )}
+
+                    {mainCategory === 'Periféricos' && (
+                      <>
+                        <option value="Teclados">Teclados</option>
+                        <option value="Mouse">Mouse</option>
+                        <option value="Auriculares">Auriculares</option>
+                        <option value="Combos">Combos</option>
+                        <option value="Webcams">Webcams</option>
+                        <option value="Joysticks">Joysticks</option>
+                      </>
+                    )}
+
+                    {mainCategory === 'Monitores' && (
+                      <>
+                        <option value="21.5 pulgadas">21.5 pulgadas</option>
+                        <option value="24 pulgadas">24 pulgadas</option>
+                        <option value="27 pulgadas">27 pulgadas</option>
+                        <option value="Gaming">Gaming</option>
+                      </>
+                    )}
+
+                    {mainCategory === 'Audio' && (
+                      <>
+                        <option value="Parlantes">Parlantes</option>
+                        <option value="Auriculares Bluetooth">Auriculares Bluetooth</option>
+                        <option value="Auriculares con cable">Auriculares con cable</option>
+                      </>
+                    )}
+
+                    {mainCategory === 'Accesorios' && (
+                      <>
+                        <option value="Pads">Pads</option>
+                        <option value="Cables">Cables</option>
+                        <option value="Soportes">Soportes</option>
+                      </>
+                    )}
+
+                    {mainCategory === 'Redes' && (
+                      <>
+                        <option value="Routers">Routers</option>
+                        <option value="Adaptadores WiFi">Adaptadores WiFi</option>
+                        <option value="Switches">Switches</option>
+                      </>
+                    )}
+
+                    {mainCategory === 'Almacenamiento' && (
+                      <>
+                        <option value="Discos SSD">Discos SSD</option>
+                        <option value="Discos HDD">Discos HDD</option>
+                        <option value="Pendrives">Pendrives</option>
+                      </>
+                    )}
+                  </Form.Select>
                 </Form.Group>
               </Col>
 

@@ -6,6 +6,7 @@ import ProductCard from '../components/ProductCard';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import FeaturedSection from '../components/FeaturedSection';
+import CategoryDropdown from '../components/CategoryDropdown';
 import { FaWhatsapp } from 'react-icons/fa';
 
 import {
@@ -76,7 +77,7 @@ const HomeScreen = () => {
           <FeaturedSection />
         </Box>
       </Fade>
-
+      
       {/* Productos destacados */}
       <Box sx={{ mt: 6 }}>
         <Typography

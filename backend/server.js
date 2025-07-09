@@ -8,6 +8,7 @@ import userRouter from './routes/userRoutes.js';
 import orderRouter from './routes/orderRoutes.js';
 import uploadRouter from './routes/uploadRoutes.js';
 import featuredRoutes from './routes/featuredRoutes.js';
+import mercadoPagoRoutes from './routes/mercadopagoRoutes.js';
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use('/api/products', productRouter);
 app.use('/api/users', userRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/featured', featuredRoutes);
+app.use('/api/payments', mercadoPagoRoutes);
 
 const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, '/frontend/build')));

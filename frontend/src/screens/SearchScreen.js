@@ -63,7 +63,8 @@ export default function SearchScreen() {
   const navigate = useNavigate();
   const { search } = useLocation();
   const sp = new URLSearchParams(search);
-  const category = sp.get('category') || 'all';
+  const rawCategory = sp.get('category') || 'all';
+  const category = decodeURIComponent(rawCategory);
   const query = sp.get('query') || 'all';
   const price = sp.get('price') || 'all';
   const rating = sp.get('rating') || 'all';
@@ -225,7 +226,7 @@ export default function SearchScreen() {
               <Grid container spacing={2}>
                 {products.map((product) => (
                   <Grid item key={product._id} xs={12} sm={6} md={4}>
-                    <Product product={product} />
+                    <ProductCard product={product} />
                   </Grid>
                 ))}
               </Grid>

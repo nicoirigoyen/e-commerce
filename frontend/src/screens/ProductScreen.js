@@ -1,19 +1,20 @@
-// ProductScreen.jsx
-import React, { useState, useEffect, useReducer, useRef, useContext } from 'react';
+import React, { useState, useEffect, useReducer, useContext } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
   Grid,
   Card,
   Typography,
   Button,
-  Rating as MuiRating,
-  Select,
-  MenuItem,
-  TextField,
   Chip,
+  IconButton,
+  Tooltip,
+  Collapse,
 } from '@mui/material';
+import ShareIcon from '@mui/icons-material/Share';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { Store } from '../Store';
@@ -23,14 +24,6 @@ import { getError } from '../utils';
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case 'REFRESH_PRODUCT':
-      return { ...state, product: action.payload };
-    case 'CREATE_REQUEST':
-      return { ...state, loadingCreateReview: true };
-    case 'CREATE_SUCCESS':
-      return { ...state, loadingCreateReview: false };
-    case 'CREATE_FAIL':
-      return { ...state, loadingCreateReview: false };
     case 'FETCH_REQUEST':
       return { ...state, loading: true };
     case 'FETCH_SUCCESS':
@@ -43,19 +36,19 @@ const reducer = (state, action) => {
 };
 
 function ProductScreen() {
-  const reviewsRef = useRef();
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
-  const [selectedImage, setSelectedImage] = useState('');
-
-  const navigate = useNavigate();
   const { slug } = useParams();
+  const navigate = useNavigate();
+  const [selectedImage, setSelectedImage] = useState('');
+  const [showAllSpecs, setShowAllSpecs] = useState(false);
 
-  const [{ loading, error, product, loadingCreateReview }, dispatch] = useReducer(reducer, {
+  const [{ loading, error, product }, dispatch] = useReducer(reducer, {
     product: null,
     loading: true,
     error: '',
   });
+
+  const { state, dispatch: ctxDispatch } = useContext(Store);
+  const { cart } = state;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,9 +64,6 @@ function ProductScreen() {
     fetchData();
   }, [slug]);
 
-  const { state, dispatch: ctxDispatch } = useContext(Store);
-  const { cart, userInfo } = state;
-
   const addToCartHandler = async () => {
     const existItem = cart.cartItems.find((x) => x._id === product._id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
@@ -83,32 +73,18 @@ function ProductScreen() {
       return;
     }
     ctxDispatch({ type: 'CART_ADD_ITEM', payload: { ...product, quantity } });
-    navigate('/cart');
+    //navigate('/cart');
+    toast.success('Producto agregado al carrito');
   };
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    if (!comment || !rating) {
-      toast.error('Por favor ingrese comentario y calificación');
-      return;
-    }
-    try {
-      const { data } = await axios.post(
-        `/api/products/${product._id}/reviews`,
-        { rating, comment, name: userInfo.name },
-        { headers: { Authorization: `Bearer ${userInfo.token}` } }
-      );
-      dispatch({ type: 'CREATE_SUCCESS' });
-      toast.success('Comentario enviado!');
-      product.reviews.unshift(data.review);
-      product.numReviews = data.numReviews;
-      product.rating = data.rating;
-      dispatch({ type: 'REFRESH_PRODUCT', payload: product });
-      window.scrollTo({ behavior: 'smooth', top: reviewsRef.current.offsetTop });
-    } catch (error) {
-      toast.error(getError(error));
-      dispatch({ type: 'CREATE_FAIL' });
-    }
+  const copyLinkHandler = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success('Enlace copiado');
+  };
+
+  const whatsappShareHandler = () => {
+    const message = `Mirá este producto: ${window.location.href}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   if (loading) return <LoadingBox />;
@@ -174,14 +150,30 @@ function ProductScreen() {
           <Typography variant="h4" fontWeight="bold" gutterBottom>
             {product.name}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <MuiRating value={product.rating} precision={0.5} readOnly sx={{ color: '#f0c040' }} />
-            <Typography sx={{ ml: 1, color: '#ccc' }}>{product.numReviews} reseñas</Typography>
-          </Box>
-          <Typography variant="h5" sx={{ color: '#f0c040', fontWeight: 'bold' }}>
+
+          <Typography variant="h5" sx={{ color: '#f0c040', fontWeight: 'bold', mt: 1 }}>
             ${product.price.toFixed(2)}
           </Typography>
+
           <Typography sx={{ mt: 2, color: '#ccc' }}>{product.description}</Typography>
+
+          <Box sx={{ display: 'flex', gap: 1, mt: 3 }}>
+            <Tooltip title="Compartir por WhatsApp">
+              <IconButton onClick={whatsappShareHandler} sx={{ color: '#25D366' }}>
+                <WhatsAppIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Copiar enlace">
+              <IconButton onClick={copyLinkHandler} sx={{ color: '#ccc' }}>
+                <ContentCopyIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Compartir">
+              <IconButton sx={{ color: '#f0c040' }}>
+                <ShareIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Grid>
 
         <Grid item xs={12} md={3}>
@@ -234,92 +226,50 @@ function ProductScreen() {
         </Grid>
       </Grid>
 
-      <Box sx={{ mt: 5 }}>
-        <Typography variant="h5" fontWeight="bold" ref={reviewsRef}>
-          Calificaciones
-        </Typography>
-        {product.reviews.length === 0 ? (
-          <MessageBox>No hay calificaciones</MessageBox>
-        ) : (
-          product.reviews.map((review) => (
-            <Card key={review._id} sx={{ my: 2, p: 2, background: '#2b2b2b', color: '#eee' }}>
-              <Typography fontWeight="bold">{review.name}</Typography>
-              <MuiRating value={review.rating} readOnly size="small" sx={{ color: '#f0c040' }} />
-              <Typography variant="caption">{new Date(review.createdAt).toLocaleDateString()}</Typography>
-              <Typography>{review.comment}</Typography>
-            </Card>
-          ))
-        )}
+      {/* SECCIÓN DE CARACTERÍSTICAS */}
+      {product.specs && product.specs.length > 0 && (
+        <Card
+          sx={{
+            mt: 5,
+            p: 3,
+            bgcolor: '#1e1e1e',
+            border: '1px solid #444',
+            borderRadius: 3,
+            color: '#eee',
+          }}
+        >
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            Especificaciones Técnicas
+          </Typography>
 
-        <Box sx={{ mt: 4 }}>
-          {userInfo ? (
-            <Box component="form" onSubmit={submitHandler}>
-              <Typography fontWeight="600" mb={2}>
-                Dejá tu reseña
-              </Typography>
-              <Select
-                fullWidth
-                value={rating}
-                onChange={(e) => setRating(Number(e.target.value))}
-                displayEmpty
-                sx={{ mb: 2, background: '#1a1a1a', color: '#fff' }}
-              >
-                <MenuItem value="" disabled>
-                  Seleccionar calificación
-                </MenuItem>
-                {[1, 2, 3, 4, 5].map((r) => (
-                  <MenuItem key={r} value={r}>
-                    {r} - {['Pobre', 'Malo', 'Bueno', 'Muy bueno', 'Excelente'][r - 1]}
-                  </MenuItem>
-                ))}
-              </Select>
-              <TextField
-                multiline
-                fullWidth
-                rows={4}
-                placeholder="Escribe tu comentario"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                sx={{
-                  mb: 2,
-                  background: '#1a1a1a',
-                  input: { color: '#fff' },
-                  '& .MuiInputBase-root': { color: '#fff' },
-                }}
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                disabled={loadingCreateReview}
-                sx={{
-                  background: 'linear-gradient(90deg, #f0c040, #ff8c00)',
-                  color: '#000',
-                  fontWeight: 'bold',
-                  fontSize: '0.8rem',
-                  borderRadius: '12px',
-                  textTransform: 'uppercase',
-                  py: 1.1,
-                  letterSpacing: 0.8,
-                  fontFamily: 'Orbitron, sans-serif',
-                  boxShadow: '0 0 10px rgba(255, 140, 0, 0.5)',
-                  transition: 'all 0.3s ease-in-out',
-                  '&:hover': {
-                    background: 'linear-gradient(90deg, #ff9c23, #ffb347)',
-                    boxShadow: '0 0 20px rgba(255, 140, 0, 0.8)',
-                    transform: 'scale(1.04)',
-                  },
-                }}
-              >
-                Enviar
-              </Button>
+          <Collapse in={showAllSpecs} collapsedSize={200}>
+            <Box component="ul" sx={{ pl: 2, mb: 0 }}>
+              {product.specs.map((spec, idx) => (
+                <li key={idx}>
+                  <Typography variant="body2" sx={{ py: 0.5 }}>
+                    <strong>{spec.key}:</strong> {spec.value}
+                  </Typography>
+                </li>
+              ))}
             </Box>
-          ) : (
-            <MessageBox>
-              Por favor <Link to={`/signin?redirect=/product/${product.slug}`}>inicia sesión</Link> para comentar.
-            </MessageBox>
+          </Collapse>
+
+          {product.specs.length > 5 && (
+            <Button
+              onClick={() => setShowAllSpecs(!showAllSpecs)}
+              sx={{
+                mt: 2,
+                color: '#f0c040',
+                fontWeight: 'bold',
+                textTransform: 'none',
+                '&:hover': { color: '#fff' },
+              }}
+            >
+              {showAllSpecs ? 'Ver menos' : 'Ver más'}
+            </Button>
           )}
-        </Box>
-      </Box>
+        </Card>
+      )}
     </Box>
   );
 }

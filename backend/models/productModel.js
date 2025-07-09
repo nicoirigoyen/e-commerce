@@ -18,10 +18,15 @@ const productSchema = new mongoose.Schema(
     image: { type: String, required: true },
     images: [String],
     brand: { type: String, required: true },
-    category: { type: String, required: true },
+    
+    // 🆕 CATEGORÍA Y SUBCATEGORÍA SEPARADAS
+    category: { type: String, required: true },       // Ej: "Hardware"
+    subcategory: { type: String },                    // Ej: "Motherboards"
+
     description: { type: String, required: true },
     price: { type: Number, required: true },
     countInStock: { type: Number, required: true },
+
     rating: { type: Number, required: true },
     numReviews: { type: Number, required: true },
     reviews: [reviewSchema],
