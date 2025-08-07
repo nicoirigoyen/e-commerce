@@ -46,7 +46,7 @@ export default function ServicioTecnicoScreen() {
     const texto = encodeURIComponent(
       `Hola, soy ${nombre}. Necesito asistencia técnica.\n\nMensaje:\n${mensaje}`
     );
-    window.open(`https://wa.me/543512278898?text=${texto}`, '_blank');
+    window.open(`https://wa.me/543518684217?text=${texto}`, '_blank');
   };
 
   return (

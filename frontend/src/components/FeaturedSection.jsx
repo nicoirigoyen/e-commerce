@@ -67,7 +67,8 @@ export default function FeaturedSection() {
   ) : (
     <Box>
       <AutoPlaySwipeableViews interval={5000} enableMouseEvents>
-        {featured.map((item, index) => (
+        {Array.isArray(featured) ? (
+            featured.map((item, index) => (
           <StyledPaper key={index}>
             <Image src={item.imageUrl} alt={item.title} />
             <Box

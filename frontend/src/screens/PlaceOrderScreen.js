@@ -34,62 +34,65 @@ export default function PlaceOrderScreen() {
   const { cart, userInfo } = state;
 
   const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
-  cart.itemsPrice = round2(
-    cart.cartItems.reduce((a, c) => a + c.quantity * c.price, 0)
-  );
+  cart.itemsPrice = round2(cart.cartItems.reduce((a, c) => a + c.quantity * c.price, 0));
   cart.shippingPrice = cart.itemsPrice > 100 ? round2(0) : round2(10);
   cart.taxPrice = round2(0.15 * cart.itemsPrice);
-  cart.totalPrice = cart.itemsPrice + cart.shippingPrice + cart.taxPrice;
+  cart.totalPrice = round2(cart.itemsPrice + cart.shippingPrice + cart.taxPrice);
 
-const placeOrderHandler = async () => {
-  if (cart.paymentMethod === 'MercadoPago') {
-    try {
-      const { data } = await Axios.post('/api/payments/create_preference', {
-        items: cart.cartItems,
-        shippingAddress: cart.shippingAddress,
-      });
+  const placeOrderHandler = async () => {
+    if (cart.paymentMethod === 'MercadoPago') {
+      try {
+        dispatch({ type: 'CREATE_REQUEST' });
+        const { data } = await Axios.post('/api/payments/create_preference', {
+          items: cart.cartItems,
+          shippingAddress: cart.shippingAddress,
+        });
+        dispatch({ type: 'CREATE_SUCCESS' });
 
-      if (data.id) {
-        window.location.href = `https://www.mercadopago.com.ar/checkout/v1/redirect?preference_id=${data.id}`;
+        if (data.init_point) {
+          // Redirigir al checkout oficial usando init_point
+          window.location.href = data.init_point;
+        } else {
+          toast.error('No se pudo obtener la URL de pago de Mercado Pago');
+        }
+      } catch (error) {
+        dispatch({ type: 'CREATE_FAIL' });
+        toast.error('Error al iniciar el pago con Mercado Pago');
       }
-    } catch (error) {
-      toast.error('Error al iniciar el pago con Mercado Pago');
+      return; // evitar continuar con flujo normal
     }
-    return;
-  }
 
-  // Continúa con el flujo normal para otros métodos
-  try {
-    dispatch({ type: 'CREATE_REQUEST' });
+    // Flujo normal para otros métodos
+    try {
+      dispatch({ type: 'CREATE_REQUEST' });
 
-    const { data } = await Axios.post(
-      '/api/orders',
-      {
-        orderItems: cart.cartItems,
-        shippingAddress: cart.shippingAddress,
-        paymentMethod: cart.paymentMethod,
-        itemsPrice: cart.itemsPrice,
-        shippingPrice: cart.shippingPrice,
-        taxPrice: cart.taxPrice,
-        totalPrice: cart.totalPrice,
-      },
-      {
-        headers: {
-          authorization: `Bearer ${userInfo.token}`,
+      const { data } = await Axios.post(
+        '/api/orders',
+        {
+          orderItems: cart.cartItems,
+          shippingAddress: cart.shippingAddress,
+          paymentMethod: cart.paymentMethod,
+          itemsPrice: cart.itemsPrice,
+          shippingPrice: cart.shippingPrice,
+          taxPrice: cart.taxPrice,
+          totalPrice: cart.totalPrice,
         },
-      }
-    );
+        {
+          headers: {
+            authorization: `Bearer ${userInfo.token}`,
+          },
+        }
+      );
 
-    ctxDispatch({ type: 'CART_CLEAR' });
-    dispatch({ type: 'CREATE_SUCCESS' });
-    localStorage.removeItem('cartItems');
-    navigate(`/order/${data.order._id}`);
-  } catch (err) {
-    dispatch({ type: 'CREATE_FAIL' });
-    toast.error(getError(err));
-  }
-};
-
+      ctxDispatch({ type: 'CART_CLEAR' });
+      dispatch({ type: 'CREATE_SUCCESS' });
+      localStorage.removeItem('cartItems');
+      navigate(`/order/${data.order._id}`);
+    } catch (err) {
+      dispatch({ type: 'CREATE_FAIL' });
+      toast.error(getError(err));
+    }
+  };
 
   useEffect(() => {
     if (!cart.paymentMethod) {
@@ -127,7 +130,9 @@ const placeOrderHandler = async () => {
                 {cart.shippingAddress.city}, {cart.shippingAddress.postalCode},{' '}
                 {cart.shippingAddress.country}
               </Card.Text>
-              <Link to="/shipping" className="text-neon">Editar</Link>
+              <Link to="/shipping" className="text-neon">
+                Editar
+              </Link>
             </Card.Body>
           </Card>
 
@@ -138,7 +143,9 @@ const placeOrderHandler = async () => {
               <Card.Text>
                 <strong>Forma de pago:</strong> {cart.paymentMethod}
               </Card.Text>
-              <Link to="/payment" className="text-neon">Editar</Link>
+              <Link to="/payment" className="text-neon">
+                Editar
+              </Link>
             </Card.Body>
           </Card>
 
@@ -172,7 +179,9 @@ const placeOrderHandler = async () => {
                   </ListGroup.Item>
                 ))}
               </ListGroup>
-              <Link to="/cart" className="text-neon">Editar</Link>
+              <Link to="/cart" className="text-neon">
+                Editar
+              </Link>
             </Card.Body>
           </Card>
         </Col>
@@ -217,17 +226,17 @@ const placeOrderHandler = async () => {
                       type="button"
                       onClick={placeOrderHandler}
                       disabled={cart.cartItems.length === 0}
+                      variant="light"
                       style={{
-                        backgroundColor: '#ffffff',
                         color: '#0052cc',
                         fontWeight: 'bold',
-                        border: '1px solid #0077ff',
                         borderRadius: '8px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '10px',
                         padding: '10px',
+                        cursor: 'pointer',
                       }}
                     >
                       <img
@@ -237,7 +246,6 @@ const placeOrderHandler = async () => {
                       />
                       Pagar con Mercado Pago
                     </Button>
-
                   </div>
                   {loading && <LoadingBox />}
                 </ListGroup.Item>

@@ -4,6 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import HomeScreen from './screens/HomeScreen';
 import ProductScreen from './screens/ProductScreen';
 import ServicioTecnicoScreen from './screens/ServicioTecnicoScreen';
+import ConfirmacionWspScreen from './screens/ConfirmacionWspScreen';
 import Container from '@mui/material/Container';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -91,6 +92,41 @@ function App() {
         Categorías
       </Typography>
 
+      {/* Arma tu PC Gamer*/}
+      <List sx={{ mt: 3 }}>
+        <ListItem
+          button
+          component={Link}
+          to="/armar-pc"
+          sx={{
+                  backgroundColor: '#1E1E2F',
+                  color: '#00FFC6',
+                  fontWeight: '600',
+                  fontSize: '1rem',
+                  px: 3,
+                  py: 1,
+                  borderRadius: '12px',
+                  border: '1px solid #00FFC6',
+                  transition: 'all 0.3s ease',
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: '#2A2A3D',
+                    color: '#ffffff',
+                    borderColor: '#00FFC6',
+                    transform: 'scale(1.04)',
+                    boxShadow: '0 0 8px #00FFC6',
+                  },
+          }}
+        >
+          <ListItemText
+            primary="Arma tu PC Gamer"
+            primaryTypographyProps={{
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}
+          />
+        </ListItem>
+      </List>
       {/* Servicio Técnico */}
       <List sx={{ mt: 3 }}>
         <ListItem
@@ -115,6 +151,7 @@ function App() {
           />
         </ListItem>
       </List>
+
     </Box>
   );
 
@@ -192,7 +229,7 @@ function App() {
           }}
         >
           🔥 ¡Envíos gratis en compras mayores a $150.000! — 💳 3 y 6 cuotas sin interés — 📞
-          Consultas por WhatsApp 351‑227‑8898 —
+          Consultas por WhatsApp 351 868-4217 🔥 
         </Typography>
 
         {/* Animación marquee */}
@@ -261,6 +298,10 @@ function App() {
                 {SidebarContent}
               </Box>
             </Drawer>
+              
+
+
+
 
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', justifyContent: 'flex-end', flex: 1 }}>
               <Button
@@ -336,6 +377,42 @@ function App() {
                 <ListItem
                   button
                   component={Link}
+                  to="/arma-tu-pc-gamer"
+                 sx={{
+                  backgroundColor: '#1E1E2F',
+                  color: '#00FFC6',
+                  fontWeight: '600',
+                  fontSize: '1rem',
+                  px: 3,
+                  py: 1,
+                  borderRadius: '12px',
+                  border: '1px solid #00FFC6',
+                  transition: 'all 0.3s ease',
+                  textTransform: 'none',
+                  '&:hover': {
+                    backgroundColor: '#2A2A3D',
+                    color: '#ffffff',
+                    borderColor: '#00FFC6',
+                    transform: 'scale(1.04)',
+                    boxShadow: '0 0 8px #00FFC6',
+                  },
+                  }}
+                >
+                  <ListItemText
+                    primary="Arma tu PC Gamer"
+                    primaryTypographyProps={{
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                    }}
+                  />
+                </ListItem>
+              </List>
+             
+
+               <List sx={{ mt: 3 }}>
+                <ListItem
+                  button
+                  component={Link}
                   to="/servicio-tecnico"
                   sx={{
                     bgcolor: '#FF3B3B',
@@ -376,6 +453,7 @@ function App() {
             <Route path="/product/:slug" element={<ProductScreen />} />
             <Route path="/search" element={<SearchScreen />} />
             <Route path="/servicio-tecnico" element={<ServicioTecnicoScreen />} />
+            <Route path="/confirmacion-wsp" element={<ConfirmacionWspScreen />} /> 
             <Route path="/cart" element={<CartScreen />} />
             <Route path="/signin" element={<SigninScreen />} />
             <Route path="/signup" element={<SignupScreen />} />

@@ -29,18 +29,8 @@ export default function PaymentMethodScreen() {
     localStorage.setItem('paymentMethod', paymentMethodName);
 
     if (paymentMethodName === 'WhatsApp') {
-      const productList = cartItems
-        .map((item) => `- ${item.quantity}x ${item.name}`)
-        .join('%0A');
-
-      const total = cartItems
-        .reduce((a, c) => a + c.price * c.quantity, 0)
-        .toFixed(2);
-
-      const mensaje = `Hola, quiero coordinar el pago de mi pedido:%0A${productList}%0A%0ATotal: $${total}%0A%0ADatos:%0ANombre: ${shippingAddress.fullName}%0ADirección: ${shippingAddress.address}, ${shippingAddress.city}, ${shippingAddress.postalCode}, ${shippingAddress.country}`;
-
-      const whatsappURL = `https://wa.me/5493512278898?text=${mensaje}`;
-      window.open(whatsappURL, '_blank');
+      navigate('/confirmacion-wsp');
+      return;
     }
 
     navigate('/placeorder');
@@ -64,7 +54,6 @@ export default function PaymentMethodScreen() {
       <div className="container small-container">
         <h1 className="my-3" style={{ color: '#58f0ff' }}>Forma de pago</h1>
         <Form onSubmit={submitHandler}>
-          {/* MERCADO PAGO */}
           <div className="mb-3">
             <Form.Check
               type="radio"
@@ -77,22 +66,6 @@ export default function PaymentMethodScreen() {
             />
           </div>
 
-          {/* OPCIONAL TARJETA - COMENTADO */}
-          {/*
-          <div className="mb-3">
-            <Form.Check
-              type="radio"
-              id="Tarjeta"
-              label="Tarjeta de crédito/débito"
-              value="Tarjeta"
-              checked={paymentMethodName === 'Tarjeta'}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-              style={{ color: '#eee' }}
-            />
-          </div>
-          */}
-
-          {/* WHATSAPP */}
           <div className="mb-3">
             <Form.Check
               type="radio"
@@ -105,7 +78,6 @@ export default function PaymentMethodScreen() {
             />
           </div>
 
-          {/* BOTÓN */}
           <div className="mb-3">
             <Button
               type="submit"

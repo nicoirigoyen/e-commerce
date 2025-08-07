@@ -1,6 +1,5 @@
 import axios from 'axios';
-import React, { useContext, useEffect, useReducer } from 'react';
-import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useParams } from 'react-router-dom';
 import Row from 'react-bootstrap/Row';
@@ -14,6 +13,8 @@ import MessageBox from '../components/MessageBox';
 import { Store } from '../Store';
 import { getError } from '../utils';
 import { toast } from 'react-toastify';
+import MercadoPagoButton from '../components/MercadoPagoButton';
+
 
 function reducer(state, action) {
   switch (action.type) {
@@ -71,44 +72,12 @@ export default function OrderScreen() {
     loadingPay: false,
   });
 
-  const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
+  // Nuevo estado para guardar el preferenceId de Mercado Pago
+  const [preferenceId, setPreferenceId] = useState(null);
+  // Nuevo estado para el public key de Mercado Pago
+  const [mpPublicKey, setMpPublicKey] = useState(null);
 
-  function createOrder(data, actions) {
-    return actions.order
-      .create({
-        purchase_units: [
-          {
-            amount: { value: order.totalPrice },
-          },
-        ],
-      })
-      .then((orderID) => orderID);
-  }
-
-  function onApprove(data, actions) {
-    return actions.order.capture().then(async function (details) {
-      try {
-        dispatch({ type: 'PAY_REQUEST' });
-        const { data } = await axios.put(
-          `/api/orders/${order._id}/pay`,
-          details,
-          {
-            headers: { authorization: `Bearer ${userInfo.token}` },
-          }
-        );
-        dispatch({ type: 'PAY_SUCCESS', payload: data });
-        toast.success('Pedido pagado');
-      } catch (err) {
-        dispatch({ type: 'PAY_FAIL', payload: getError(err) });
-        toast.error(getError(err));
-      }
-    });
-  }
-
-  function onError(err) {
-    toast.error(getError(err));
-  }
-
+  // Cargar la orden
   useEffect(() => {
     const fetchOrder = async () => {
       try {
@@ -117,6 +86,16 @@ export default function OrderScreen() {
           headers: { authorization: `Bearer ${userInfo.token}` },
         });
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
+
+        // Si la orden no está pagada, crear la preferencia Mercado Pago
+        if (!data.isPaid) {
+          const prefResponse = await axios.post(
+            '/api/payments/create_preference',
+            { items: data.orderItems },
+            { headers: { authorization: `Bearer ${userInfo.token}` } }
+          );
+          setPreferenceId(prefResponse.data.id);
+        }
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
@@ -132,20 +111,28 @@ export default function OrderScreen() {
       fetchOrder();
       if (successPay) dispatch({ type: 'PAY_RESET' });
       if (successDeliver) dispatch({ type: 'DELIVER_RESET' });
-    } else {
-      const loadPaypalScript = async () => {
-        const { data: clientId } = await axios.get('/api/keys/paypal', {
-          headers: { authorization: `Bearer ${userInfo.token}` },
-        });
-        paypalDispatch({
-          type: 'resetOptions',
-          value: { 'client-id': clientId, currency: 'ARS' },
-        });
-        paypalDispatch({ type: 'setLoadingStatus', value: 'pending' });
-      };
-      loadPaypalScript();
     }
-  }, [order, userInfo, orderId, navigate, paypalDispatch, successPay, successDeliver]);
+  }, [order, userInfo, orderId, navigate, successPay, successDeliver]);
+
+  // Función para manejar el pago exitoso de Mercado Pago
+  const onPaymentApproved = async (paymentData) => {
+    try {
+      dispatch({ type: 'PAY_REQUEST' });
+      // Envío detalles del pago al backend para actualizar la orden
+      const { data } = await axios.put(
+        `/api/orders/${order._id}/pay`,
+        paymentData,
+        {
+          headers: { authorization: `Bearer ${userInfo.token}` },
+        }
+      );
+      dispatch({ type: 'PAY_SUCCESS', payload: data });
+      toast.success('Pedido pagado con Mercado Pago');
+    } catch (err) {
+      dispatch({ type: 'PAY_FAIL', payload: getError(err) });
+      toast.error(getError(err));
+    }
+  };
 
   async function deliverOrderHandler() {
     try {
@@ -285,17 +272,10 @@ export default function OrderScreen() {
                   </Row>
                 </ListGroup.Item>
 
-                {!order.isPaid && (
+                {/* Mostrar botón Mercado Pago solo si no está pagado y tenemos preferenceId y publicKey */}
+                {!order.isPaid && preferenceId && mpPublicKey && (
                   <ListGroup.Item style={{ backgroundColor: '#111827' }}>
-                    {isPending ? (
-                      <LoadingBox />
-                    ) : (
-                      <PayPalButtons
-                        createOrder={createOrder}
-                        onApprove={onApprove}
-                        onError={onError}
-                      />
-                    )}
+                    <MercadoPagoButton preferenceId={preferenceId} />
                     {loadingPay && <LoadingBox />}
                   </ListGroup.Item>
                 )}

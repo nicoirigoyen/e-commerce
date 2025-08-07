@@ -1,41 +1,56 @@
 import express from 'express';
-import { MercadoPagoConfig } from 'mercadopago';
 import dotenv from 'dotenv';
-dotenv.config();
 
 const router = express.Router();
+dotenv.config();
 
-const mercadopago = new MercadoPagoConfig({
-  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
-});
+// Usamos fetch nativo en Node.js 18+
+const isProd = process.env.NODE_ENV === 'production';
+
+const ACCESS_TOKEN = isProd 
+  ? process.env.MERCADOPAGO_ACCESS_TOKEN_PROD
+  : process.env.MERCADOPAGO_ACCESS_TOKEN_SANDBOX;
 
 router.post('/create_preference', async (req, res) => {
   try {
-    const { items, shippingAddress } = req.body;
+    const formattedItems = req.body.items.map((item) => ({
+      title: item.name || item.title || 'Producto',
+      quantity: Number(item.quantity) || 1,
+      unit_price: Number(item.price) || Number(item.unit_price) || 0,
+      currency_id: item.currency_id || 'ARS',
+    }));
 
-    const preference = {
-      items: items.map((item) => ({
-        title: item.name,
-        quantity: item.quantity,
-        unit_price: Number(item.price),
-        currency_id: 'ARS',
-      })),
+    const payload = {
+      items: formattedItems,
       back_urls: {
-        success: `http://localhost:3000/success`,
-        failure: `http://localhost:3000/failure`,
-        pending: `http://localhost:3000/pending`,
+        success: 'http://localhost:3000/success',
+        failure: 'http://localhost:3000/failure',
+        pending: 'http://localhost:3000/pending',
       },
-      auto_return: 'approved',
-      payer: {
-        name: shippingAddress.fullName,
-      },
+      //auto_return: 'approved',
+      notification_url: 'http://localhost:5001/api/payments/webhook',
     };
 
-    const response = await mercadopago.preferences.create(preference);
-    res.json({ id: response.body.id });
+    const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${ACCESS_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Error MP API:', data);
+      return res.status(response.status).json(data);
+    }
+
+    res.json(data); // Enviamos `init_point` al frontend
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Error al crear la preferencia');
+    console.error('Error creando preferencia Mercado Pago:', error);
+    res.status(500).json({ error: 'Error interno al crear preferencia' });
   }
 });
 
