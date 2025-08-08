@@ -1,6 +1,6 @@
 import Spinner from 'react-bootstrap/Spinner';
 
-export default function LoadingBox({ size = 50 }) {
+export default function LoadingBox({ size = 60 }) {
   return (
     <div
       style={{
@@ -14,7 +14,7 @@ export default function LoadingBox({ size = 50 }) {
         animation="border"
         role="status"
         style={{ width: size, height: size }}
-        variant="warning" // o el color que prefieras para que combine con tu tema
+        variant="warning" // o el color que prefieras
       >
         <span className="visually-hidden">Cargando...</span>
       </Spinner>

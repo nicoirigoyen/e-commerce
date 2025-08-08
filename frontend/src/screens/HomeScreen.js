@@ -95,62 +95,63 @@ const HomeScreen = () => {
         </Typography>
 
        {loading ? (
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: 200,
-                }}
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: 200,
+              }}
+            >
+              <LoadingBox size={60} />
+            </Box>
+          ) : error ? (
+            <Box sx={{ textAlign: 'center', mb: 3 }}>
+              <MessageBox variant="danger" sx={{ mb: 2 }}>
+                {error}
+              </MessageBox>
+              <Fab
+                variant="extended"
+                color="primary"
+                onClick={() => window.location.reload()}
+                sx={{ cursor: 'pointer' }}
               >
-                <LoadingBox size={60} /> {/* podés hacer que LoadingBox acepte tamaño */}
-              </Box>
-            ) : error ? (
-              <Box sx={{ textAlign: 'center', mb: 3 }}>
-                <MessageBox variant="danger" sx={{ mb: 2 }}>
-                  {error}
-                </MessageBox>
-                <Fab
-                  variant="extended"
-                  color="primary"
-                  onClick={() => window.location.reload()}
-                  sx={{ cursor: 'pointer' }}
-                >
-                  Reintentar
-                </Fab>
-              </Box>
-            ) : products.length === 0 ? (
-              <Box
-                sx={{
-                  textAlign: 'center',
-                  color: '#ccc',
-                  fontStyle: 'italic',
-                  py: 10,
-                  userSelect: 'none',
-                }}
-              >
-                No hay productos disponibles en este momento.<br />
-                Volvé más tarde 😊
-              </Box>
-            ) : (
-              <Grid container spacing={3}>
-                {products.map((product, index) => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={product.slug}>
-                    <Grow in timeout={500 + index * 150}>
-                      <Box
-                        sx={{
-                          height: '100%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                        }}
-                      >
-                        <ProductCard product={product} />
-                      </Box>
-                    </Grow>
-                  </Grid>
-                ))}
-              </Grid>
-            )}
+                Reintentar
+              </Fab>
+            </Box>
+          ) : !Array.isArray(products) || products.length === 0 ? (
+            <Box
+              sx={{
+                textAlign: 'center',
+                color: '#ccc',
+                fontStyle: 'italic',
+                py: 10,
+                userSelect: 'none',
+              }}
+            >
+              No hay productos disponibles en este momento.<br />
+              Volvé más tarde 😊
+            </Box>
+          ) : (
+            <Grid container spacing={3}>
+              {products.map((product, index) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={product.slug}>
+                  <Grow in timeout={500 + index * 150}>
+                    <Box
+                      sx={{
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                      }}
+                    >
+                      <ProductCard product={product} />
+                    </Box>
+                  </Grow>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+
       </Box>
 
       {/* WhatsApp flotante */}
