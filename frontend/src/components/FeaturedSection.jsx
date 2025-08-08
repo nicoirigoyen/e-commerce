@@ -8,10 +8,11 @@ import { getError } from '../utils';
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
+// Reducer para manejar estados
 const reducer = (state, action) => {
   switch (action.type) {
     case 'FETCH_REQUEST':
-      return { ...state, loading: true };
+      return { ...state, loading: true, error: '' };
     case 'FETCH_SUCCESS':
       return { ...state, featured: action.payload, loading: false };
     case 'FETCH_FAIL':
@@ -21,14 +22,15 @@ const reducer = (state, action) => {
   }
 };
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
+// Estilos personalizados
+const StyledPaper = styled(Paper)({
   position: 'relative',
   backgroundColor: '#121212',
   color: '#fff',
   borderRadius: '10px',
   overflow: 'hidden',
   boxShadow: '0 0 15px #00fff760',
-}));
+});
 
 const Image = styled('img')({
   width: '100%',
@@ -50,27 +52,49 @@ export default function FeaturedSection() {
       dispatch({ type: 'FETCH_REQUEST' });
       try {
         const { data } = await axios.get('/api/featured');
-        dispatch({ type: 'FETCH_SUCCESS', payload: data });
+
+        // Aseguramos que `data` sea un array
+        const safeData = Array.isArray(data) ? data : [];
+        dispatch({ type: 'FETCH_SUCCESS', payload: safeData });
       } catch (err) {
         dispatch({ type: 'FETCH_FAIL', payload: getError(err) });
       }
     };
+
     fetchFeatured();
   }, []);
 
-  return loading ? (
-    <CircularProgress sx={{ color: '#00fff7' }} />
-  ) : error ? (
-    <Typography sx={{ color: 'red' }}>{error}</Typography>
-  ) : featured.length === 0 ? (
-    <Typography sx={{ color: '#ccc' }}>No hay ítems destacados.</Typography>
-  ) : (
+  // Render según estado
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+        <CircularProgress sx={{ color: '#00fff7' }} />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ textAlign: 'center', color: 'red', py: 4 }}>
+        <Typography variant="body1">{error}</Typography>
+      </Box>
+    );
+  }
+
+  if (!Array.isArray(featured) || featured.length === 0) {
+    return (
+      <Typography sx={{ color: '#ccc', textAlign: 'center', py: 4 }}>
+        No hay ítems destacados en este momento.
+      </Typography>
+    );
+  }
+
+  return (
     <Box>
       <AutoPlaySwipeableViews interval={5000} enableMouseEvents>
-        {Array.isArray(featured) ? (
-            featured.map((item, index) => (
+        {featured.map((item, index) => (
           <StyledPaper key={index}>
-            <Image src={item.imageUrl} alt={item.title} />
+            <Image src={item.imageUrl} alt={item.title || 'Imagen destacada'} />
             <Box
               sx={{
                 position: 'absolute',
@@ -82,7 +106,7 @@ export default function FeaturedSection() {
               }}
             >
               <Typography variant="h6" sx={{ color: '#00fff7' }}>
-                {item.title}
+                {item.title || 'Sin título'}
               </Typography>
               {item.description && (
                 <Typography variant="body2" sx={{ color: '#ccc' }}>
